@@ -13,59 +13,143 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
+/**
+ * Service layer for managing party operations within the Veche application.
+ *
+ * This service provides comprehensive CRUD operations for parties, including creation,
+ * updates, retrieval, and deletion. It handles party-company relationships and ensures
+ * proper data access based on user permissions and company associations.
+ *
+ * @property companyRepository Repository for company data access operations
+ * @property partyRepository Repository for party data access operations
+ * @property partyMapper Mapper for converting between entity and DTO representations
+ *
+ */
 @Service
 class PartyService(
     private val companyRepository: CompanyRepository,
     private val partyRepository: PartyRepository,
     private val partyMapper: PartyMapper,
 ) {
-
+    /**
+     * Creates a new party within a specified company.
+     *
+     * This method validates that the specified company exists before creating the party.
+     * The operation is performed within a database transaction to ensure data consistency.
+     *
+     * @param request The party creation request containing party details and company ID
+     * @return PartyResponseDto containing the created party information
+     * @throws NotFoundException if the specified company does not exist
+     */
     @Transactional
-    fun createParty(request: PartyRequestDto): PartyResponseDto {
+    fun createParty(
+        request: PartyRequestDto,
+        user: UserPrincipal,
+    ): PartyResponseDto {
+        val company =
+            companyRepository
+                .findById(user.companyId)
+                .orElseThrow { NotFoundException("Company not found") }
 
-        val party = partyRepository.save(
-            PartyEntity(
-                name = request.name,
-                company = companyRepository.findById(request.companyId)
-                    .orElseThrow { NotFoundException("Company not found") }
+        val party =
+            partyRepository.save(
+                PartyEntity(
+                    name = request.name,
+                    company = company,
+                ),
             )
-        )
 
         return partyMapper.toDto(party)
     }
 
+    /**
+     * Updates an existing party's information.
+     *
+     * This method retrieves the existing party, updates its properties based on the request,
+     * and saves the changes to the database within a transaction.
+     *
+     * @param request The update request containing new party information
+     * @param partyId The unique identifier of the party to update
+     * @return PartyResponseDto containing the updated party information
+     * @throws NotFoundException if the specified party does not exist
+     */
     @Transactional
-    fun updateParty(request: PartyUpdateDto, partyId: UUID): PartyResponseDto {
-
-        val party = partyRepository.findById(partyId)
-            .orElseThrow { NotFoundException("Party not found") }
-
+    fun updateParty(
+        request: PartyUpdateDto,
+        partyId: UUID,
+    ): PartyResponseDto {
+        val party = findPartyById(partyId)
         val updatedParty = party.copy(name = request.name)
-
-        val savedParty = partyRepository.save(updatedParty)
-        return partyMapper.toDto(savedParty)
+        return partyMapper.toDto(partyRepository.save(updatedParty))
     }
 
+    /**
+     * Retrieves all parties belonging to the user's company.
+     *
+     * This is a convenience method that delegates to [getAllPartiesForCompany] using
+     * the company ID from the user's principal. The operation is read-only.
+     *
+     * @param user The authenticated user principal containing company information
+     * @return List of PartyResponseDto representing all parties in the user's company
+     */
     @Transactional(readOnly = true)
-    fun getAllPartiesForUserCompany(user: UserPrincipal): List<PartyResponseDto> {
-        val companyId = user.companyId
+    fun getAllPartiesForUserCompany(user: UserPrincipal): List<PartyResponseDto> = getAllPartiesForCompany(user.companyId)
 
-        val parties = partyRepository.findAllByCompanyId(companyId)
-        return parties.map { partyMapper.toDto(it) }
-    }
-
+    /**
+     * Retrieves all parties that the specified user has access to.
+     *
+     * This method returns only the parties that are explicitly associated with the user
+     * through their party IDs list. The operation is read-only.
+     *
+     * @param user The authenticated user principal containing accessible party IDs
+     * @return List of PartyResponseDto representing parties accessible to the user
+     */
     @Transactional(readOnly = true)
-    fun getAllPartiesForCompany(companyId: UUID): List<PartyResponseDto> {
-        val parties = partyRepository.findAllByCompanyId(companyId)
-        return parties.map { partyMapper.toDto(it) }
-    }
+    fun getPartiesForUser(user: UserPrincipal): List<PartyResponseDto> = partyRepository.findAllById(user.partyIds).map(partyMapper::toDto)
 
+    /**
+     * Retrieves all parties belonging to a specific company.
+     *
+     * This method fetches all parties associated with the given company ID.
+     * The operation is read-only and returns an empty list if no parties are found.
+     *
+     * @param companyId The unique identifier of the company
+     * @return List of PartyResponseDto representing all parties in the specified company
+     */
+    @Transactional(readOnly = true)
+    fun getAllPartiesForCompany(companyId: UUID): List<PartyResponseDto> =
+        partyRepository.findAllByCompanyId(companyId).map(partyMapper::toDto)
+
+    /**
+     * Deletes a party from the system.
+     *
+     * This method first verifies that the party exists before attempting deletion.
+     * The operation is performed within a database transaction to ensure data consistency.
+     * Related data and associations should be handled by database cascading rules.
+     *
+     * @param partyId The unique identifier of the party to delete
+     * @throws NotFoundException if the specified party does not exist
+     */
     @Transactional
     fun deleteParty(partyId: UUID) {
-        val party = partyRepository.findById(partyId)
-            .orElseThrow { NotFoundException("Party not found") }
-
-        partyRepository.delete(party)
+        if (!partyRepository.existsById(partyId)) {
+            throw NotFoundException("Party not found")
+        }
+        partyRepository.deleteById(partyId)
     }
 
+    /**
+     * Retrieves a party entity by its unique identifier.
+     *
+     * This is a private utility method used internally by other service methods
+     * to fetch party entities with consistent error handling.
+     *
+     * @param partyId The unique identifier of the party to retrieve
+     * @return PartyEntity representing the found party
+     * @throws NotFoundException if the specified party does not exist
+     */
+    private fun findPartyById(partyId: UUID) =
+        partyRepository
+            .findById(partyId)
+            .orElseThrow { NotFoundException("Party not found") }
 }
