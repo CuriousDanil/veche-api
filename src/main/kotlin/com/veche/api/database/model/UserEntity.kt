@@ -15,32 +15,42 @@ import jakarta.persistence.*
  * @property company The company to which this user belongs.
  * @property parties The set of parties the user is a member of.
  * @property discussionEntities The discussions created by this user. Cascade operations and orphan removal are enabled.
- * @property arguments The arguments created by this user. Cascade operations and orphan removal are enabled.
+ * @property comments The comments created by this user. Cascade operations and orphan removal are enabled.
  */
 @Entity
 @Table(name = "users")
-data class UserEntity(
+class UserEntity : BaseEntity() {
     @Column(name = "name", nullable = false)
-    val name: String,
+    var name: String = ""
+
     @Column(name = "email", nullable = false)
-    val email: String,
+    var email: String = ""
+
     @Column(name = "password_hash", nullable = false)
-    val passwordHash: String,
+    var passwordHash: String = ""
+
     @Column(name = "bio")
-    val bio: String? = null,
+    var bio: String? = null
+
     @Column(name = "is_able_to_post_discussions")
-    val isAbleToPostDiscussions: Boolean = false,
+    var isAbleToPostDiscussions: Boolean = false
+
     @Column(name = "is_able_to_manage_sessions")
-    val isAbleToManageSessions: Boolean = false,
+    var isAbleToManageSessions: Boolean = false
+
     @Column(name = "is_able_to_manage_users")
-    val isAbleToManageUsers: Boolean = false,
+    var isAbleToManageUsers: Boolean = false
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "company_id", nullable = false)
-    val company: CompanyEntity,
+    lateinit var company: CompanyEntity
+
     @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
-    val parties: MutableSet<PartyEntity> = mutableSetOf(),
+    var parties: MutableSet<PartyEntity> = mutableSetOf()
+
     @OneToMany(mappedBy = "creator", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val discussionEntities: MutableSet<DiscussionEntity> = mutableSetOf(),
+    var discussionEntities: MutableSet<DiscussionEntity> = mutableSetOf()
+
     @OneToMany(mappedBy = "creator", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val comments: MutableSet<CommentEntity> = mutableSetOf(),
-) : BaseEntity()
+    var comments: MutableSet<CommentEntity> = mutableSetOf()
+}

@@ -11,6 +11,7 @@ import com.veche.api.mapper.PartyMapper
 import com.veche.api.security.UserPrincipal
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 import java.util.UUID
 
 /**
@@ -53,10 +54,10 @@ class PartyService(
 
         val party =
             partyRepository.save(
-                PartyEntity(
-                    name = request.name,
-                    company = company,
-                ),
+                PartyEntity().apply {
+                    name = request.name
+                    this.company = company
+                },
             )
 
         return partyMapper.toDto(party)
@@ -79,8 +80,10 @@ class PartyService(
         partyId: UUID,
     ): PartyResponseDto {
         val party = findPartyById(partyId)
-        val updatedParty = party.copy(name = request.name)
-        return partyMapper.toDto(partyRepository.save(updatedParty))
+        party.apply {
+            name = request.name
+        }
+        return partyMapper.toDto(party)
     }
 
     /**
@@ -118,7 +121,7 @@ class PartyService(
      */
     @Transactional(readOnly = true)
     fun getAllPartiesForCompany(companyId: UUID): List<PartyResponseDto> =
-        partyRepository.findAllByCompanyId(companyId).map(partyMapper::toDto)
+        partyRepository.findAllByCompanyIdAndDeletedAtIsNull(companyId).map(partyMapper::toDto)
 
     /**
      * Deletes a party from the system.
@@ -131,12 +134,7 @@ class PartyService(
      * @throws NotFoundException if the specified party does not exist
      */
     @Transactional
-    fun deleteParty(partyId: UUID) {
-        if (!partyRepository.existsById(partyId)) {
-            throw NotFoundException("Party not found")
-        }
-        partyRepository.deleteById(partyId)
-    }
+    fun deleteParty(partyId: UUID) = findPartyById(partyId).also { it.deletedAt = Instant.now() }
 
     /**
      * Retrieves a party entity by its unique identifier.

@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import java.util.UUID
 
 interface PartyRepository : JpaRepository<PartyEntity, UUID> {
-    fun findAllByCompanyId(companyId: UUID): List<PartyEntity>
+    fun findAllByCompanyIdAndDeletedAtIsNull(companyId: UUID): List<PartyEntity>
 }
 
 

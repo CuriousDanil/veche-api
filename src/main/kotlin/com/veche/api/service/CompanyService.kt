@@ -2,7 +2,6 @@ package com.veche.api.service
 
 import com.veche.api.database.model.CompanyEntity
 import com.veche.api.database.repository.CompanyRepository
-import com.veche.api.database.repository.UserRepository
 import com.veche.api.dto.company.CompanyRequestDto
 import com.veche.api.dto.company.CompanyResponseDto
 import com.veche.api.dto.company.CompanyUpdateDto
@@ -15,10 +14,8 @@ import java.util.*
 @Service
 class CompanyService(
     private val companyRepository: CompanyRepository,
-    private val userRepository: UserRepository,
-    private val companyMapper: CompanyMapper
+    private val companyMapper: CompanyMapper,
 ) {
-
     /**
      * Creates a new company with the given details.
      *
@@ -27,9 +24,10 @@ class CompanyService(
      */
     @Transactional
     fun createCompany(request: CompanyRequestDto): CompanyResponseDto {
-        val company = CompanyEntity(
-            name = request.name
-        )
+        val company =
+            CompanyEntity().apply {
+                name = request.name
+            }
 
         val savedCompany = companyRepository.save(company)
         return companyMapper.toDto(savedCompany)
@@ -44,36 +42,17 @@ class CompanyService(
      * @throws NotFoundException if the company with the given ID is not found
      */
     @Transactional
-    fun updateCompanyName(id: UUID, request: CompanyUpdateDto): CompanyResponseDto {
-        val company = companyRepository.findById(id)
-            .orElseThrow { NotFoundException("Company not found.") }
+    fun updateCompanyName(
+        id: UUID,
+        request: CompanyUpdateDto,
+    ): CompanyResponseDto {
+        val company =
+            companyRepository
+                .findById(id)
+                .orElseThrow { NotFoundException("Company not found.") }
 
-        // Create a new company entity with the updated name while preserving other properties
-        val updatedCompany = company.copy(name = request.name)
-
-        val savedCompany = companyRepository.save(updatedCompany)
-        return companyMapper.toDto(savedCompany)
-    }
-
-    /**
-     * Add a user to the specified company.
-     *
-     * @param companyId The unique identifier of the company
-     * @param userId The unique identifier of the user to add
-     * @throws NotFoundException if either the company or user is not found
-     */
-    @Transactional
-    fun addUserToCompany(companyId: UUID, userId: UUID) {
-        val company = companyRepository.findById(companyId)
-            .orElseThrow { NotFoundException("Company not found.") }
-
-        val user = userRepository.findById(userId)
-            .orElseThrow { NotFoundException("User not found.") }
-
-        // Create a new user entity with the updated company while preserving other properties
-        val updatedUser = user.copy(company = company)
-
-        userRepository.save(updatedUser)
+        company.name = request.name
+        return companyMapper.toDto(company)
     }
 
     /**
@@ -96,8 +75,10 @@ class CompanyService(
      */
     @Transactional(readOnly = true)
     fun getCompanyById(id: UUID): CompanyResponseDto {
-        val company = companyRepository.findById(id)
-            .orElseThrow { NotFoundException("Company not found.") }
+        val company =
+            companyRepository
+                .findById(id)
+                .orElseThrow { NotFoundException("Company not found.") }
 
         return companyMapper.toDto(company)
     }

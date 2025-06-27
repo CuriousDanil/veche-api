@@ -36,49 +36,50 @@ class AuthService(
     @Transactional
     fun registerFounder(dto: FounderRegistrationDto): RegistrationResponseDto {
         val hashedPassword = passwordEncoder.hash(dto.password)
-        val company =
+        val newCompany =
             companyRepository.save(
-                CompanyEntity(name = dto.companyName),
+                CompanyEntity().apply { name = dto.companyName },
             )
-        val party =
+        val newParty =
             partyRepository.save(
-                PartyEntity(name = dto.partyName, company = company),
+                PartyEntity().apply {
+                    name = dto.partyName
+                    company = newCompany
+                },
             )
-        val user =
+        val newUser =
             userRepository.save(
-                UserEntity(
-                    email = dto.email,
-                    passwordHash = hashedPassword,
-                    name = dto.name,
-                    company = company,
-                    parties = mutableSetOf(party),
-                ),
+                UserEntity().apply {
+                    email = dto.email
+                    passwordHash = hashedPassword
+                    name = dto.name
+                    company = company
+                    parties = mutableSetOf(newParty)
+                },
             )
 
-        party.users.add(user)
+        newParty.users.add(newUser)
 
-        partyRepository.save(party)
-
-        return RegistrationResponseDto(user.name)
+        return RegistrationResponseDto(newUser.name)
     }
 
     @Transactional
     fun registerUser(dto: UserRegistrationDto): RegistrationResponseDto {
         val hashedPassword = passwordEncoder.hash(dto.password)
-        val company =
+        val newCompany =
             companyRepository.findById(dto.companyId).orElseThrow {
                 IllegalArgumentException("Company with ID ${dto.companyId} not found.")
             }
-        val party = partyRepository.findAllByCompanyId(company.id).first()
+        val party = partyRepository.findAllByCompanyIdAndDeletedAtIsNull(newCompany.id).first()
         val user =
             userRepository.save(
-                UserEntity(
-                    email = dto.email,
-                    passwordHash = hashedPassword,
-                    name = dto.name,
-                    company = company,
-                    parties = mutableSetOf(party),
-                ),
+                UserEntity().apply {
+                    email = dto.email
+                    passwordHash = hashedPassword
+                    name = dto.name
+                    company = newCompany
+                    parties = mutableSetOf(party)
+                },
             )
         return RegistrationResponseDto(user.name)
     }

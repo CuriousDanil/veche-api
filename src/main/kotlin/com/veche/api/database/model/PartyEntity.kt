@@ -12,24 +12,22 @@ import jakarta.persistence.*
  */
 @Entity
 @Table(name = "parties")
-data class PartyEntity (
-
+class PartyEntity : BaseEntity() {
     @Column(name = "name", nullable = false)
-    val name: String,
+    var name: String = ""
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", nullable = false)
-    val company: CompanyEntity,
+    lateinit var company: CompanyEntity
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "parties_users",
         joinColumns = [JoinColumn(name = "party_id")],
-        inverseJoinColumns = [JoinColumn(name = "user_id")]
+        inverseJoinColumns = [JoinColumn(name = "user_id")],
     )
-    val users: MutableSet<UserEntity> = mutableSetOf(),
+    var users: MutableSet<UserEntity> = mutableSetOf()
 
     @OneToMany(mappedBy = "party", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val discussions: MutableSet<DiscussionEntity> = mutableSetOf()
-
-): BaseEntity()
+    var discussions: MutableSet<DiscussionEntity> = mutableSetOf()
+}

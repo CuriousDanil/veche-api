@@ -14,12 +14,10 @@ import java.time.Instant
  */
 @Entity
 @Table(name = "sessions")
-data class SessionEntity(
-
+class SessionEntity : BaseEntity() {
     @Column(name = "expires_at")
-    val expiresAt: Instant? = null,
+    var expiresAt: Instant? = null
 
     @OneToMany(mappedBy = "session", orphanRemoval = true)
-    val discussions: MutableSet<DiscussionEntity> = mutableSetOf()
-
-) : BaseEntity()
+    var discussions: MutableSet<DiscussionEntity> = mutableSetOf()
+}

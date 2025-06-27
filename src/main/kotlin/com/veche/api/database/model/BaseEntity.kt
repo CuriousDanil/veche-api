@@ -3,9 +3,10 @@ package com.veche.api.database.model
 import jakarta.persistence.Column
 import jakarta.persistence.Id
 import jakarta.persistence.MappedSuperclass
-import org.hibernate.proxy.HibernateProxy
+import org.hibernate.annotations.CreationTimestamp
+import org.hibernate.annotations.UpdateTimestamp
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 /**
  * Abstract base class for all persistent entities, providing common identifier and timestamp properties.
@@ -21,7 +22,7 @@ abstract class BaseEntity {
     /**
      * Unique identifier for the entity.
      *
-     * This property must be manually assigned when the entity is created and must not be changed afterwards.
+     * This property must be manually assigned when the entity is created and must not be changed afterward.
      */
     @Id
     @Column(name = "id", nullable = false, updatable = false)
@@ -32,7 +33,8 @@ abstract class BaseEntity {
      *
      * Set automatically to the instant of entity instantiation and is immutable thereafter.
      */
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
     val createdAt: Instant = Instant.now()
 
     /**
@@ -40,46 +42,15 @@ abstract class BaseEntity {
      *
      * Initialized at instantiation and expected to be updated appropriately to reflect modifications.
      */
+    @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    val updatedAt: Instant = Instant.now()
+    var updatedAt: Instant = Instant.now()
 
     /**
-     * Determines equality based on the entity's identifier and effective class type.
+     * Timestamp indicating when the entity was soft deleted.
      *
-     * This method correctly handles Hibernate proxy instances by comparing the underlying persistent classes.
-     *
-     * @param other the object to compare with
-     * @return `true` if both objects represent the same entity instance, `false` otherwise
+     * Null for active entities, set to deletion time when entity is soft deleted.
      */
-    final override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null) return false
-        val oEffectiveClass =
-            if (other is HibernateProxy) other.hibernateLazyInitializer.persistentClass else other.javaClass
-        val thisEffectiveClass =
-            if (this is HibernateProxy) this.hibernateLazyInitializer.persistentClass else this.javaClass
-        if (thisEffectiveClass != oEffectiveClass) return false
-        other as BaseEntity
-
-        return id == other.id
-    }
-
-    /**
-     * Computes hash code consistent with [equals], based on the effective class type.
-     *
-     * Handles Hibernate proxy instances by using the underlying persistent class's hash code.
-     *
-     * @return hash code of the entity
-     */
-    final override fun hashCode(): Int =
-        if (this is HibernateProxy) this.hibernateLazyInitializer.persistentClass.hashCode() else javaClass.hashCode()
-
-    /**
-     * Returns a string representation of the entity, including its simple class name and [id].
-     *
-     * Useful for logging and debugging purposes to quickly identify entity instances.
-     *
-     * @return string representation of the entity
-     */
-    override fun toString(): String = this::class.simpleName + "(  id = $id )"
+    @Column(name = "deleted_at", nullable = true)
+    var deletedAt: Instant? = null
 }

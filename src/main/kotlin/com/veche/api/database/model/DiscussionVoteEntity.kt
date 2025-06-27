@@ -19,17 +19,19 @@ import jakarta.persistence.*
         ),
     ],
 )
-data class DiscussionVoteEntity(
+class DiscussionVoteEntity : BaseEntity() {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "discussion_id", nullable = false)
-    val discussion: DiscussionEntity,
+    lateinit var discussion: DiscussionEntity
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
-    val user: UserEntity,
+    lateinit var user: UserEntity
+
     @Enumerated(EnumType.STRING)
     @Column(name = "vote_value", nullable = false)
-    val voteValue: VoteValue,
-) : BaseEntity()
+    var voteValue: VoteValue = VoteValue.AGREE
+}
 
 /**
  * Enum representing possible vote values.

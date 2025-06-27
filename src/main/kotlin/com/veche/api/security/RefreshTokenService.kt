@@ -9,47 +9,57 @@ import java.util.UUID
 @Service
 class RefreshTokenService(
     private val redis: StringRedisTemplate,
-    private val jwtService: JwtService
+    private val jwtService: JwtService,
 ) {
-
     private fun userKey(userId: UUID) = "refresh:$userId"
+
     private fun blackListKey(token: String) = "bl:$token"
 
     fun save(token: String) {
         val userId = jwtService.extractUserId(token)
-        val timeToLive = Duration.between(
-            Instant.now(),
-            jwtService.extractExpiration(token)
-        )
-        if (timeToLive.isNegative || timeToLive.isZero)
+        val timeToLive =
+            Duration.between(
+                Instant.now(),
+                jwtService.extractExpiration(token),
+            )
+        if (timeToLive.isNegative || timeToLive.isZero) {
             throw IllegalArgumentException("Token is Invalid or expired")
+        }
         redis.opsForValue().set(userKey(userId), token, timeToLive)
     }
 
     fun status(token: String): RefreshTokenStatus {
-        if (!jwtService.validateRefreshToken(token))
+        if (!jwtService.validateRefreshToken(token)) {
             return RefreshTokenStatus.MALFORMED_OR_EXPIRED
+        }
 
-        if (redis.hasKey(blackListKey(token)))
+        if (redis.hasKey(blackListKey(token))) {
             return RefreshTokenStatus.BLACKLISTED
+        }
 
         val userId = jwtService.extractUserId(token)
         val current = redis.opsForValue().get(userKey(userId))
-        return if (token == current)
+        return if (token == current) {
             RefreshTokenStatus.VALID
-        else
+        } else {
             RefreshTokenStatus.STALE // unreachable status during normal operation
+        }
     }
 
-    fun rotate(oldToken: String, newToken: String) {
+    fun rotate(
+        oldToken: String,
+        newToken: String,
+    ) {
         blacklist(oldToken)
         val userId = jwtService.extractUserId(oldToken)
-        val timeToLive = Duration.between(
-            Instant.now(),
-            jwtService.extractExpiration(newToken)
-        )
-        if (timeToLive.isNegative || timeToLive.isZero)
+        val timeToLive =
+            Duration.between(
+                Instant.now(),
+                jwtService.extractExpiration(newToken),
+            )
+        if (timeToLive.isNegative || timeToLive.isZero) {
             throw IllegalArgumentException("Token is Invalid or expired")
+        }
         redis.opsForValue().set(userKey(userId), newToken, timeToLive)
     }
 
@@ -60,12 +70,12 @@ class RefreshTokenService(
     }
 
     private fun blacklist(token: String) {
-        val timeToLive = Duration.between(
-            Instant.now(),
-            jwtService.extractExpiration(token)
-        )
+        val timeToLive =
+            Duration.between(
+                Instant.now(),
+                jwtService.extractExpiration(token),
+            )
         if (timeToLive.isNegative || timeToLive.isZero) return
         redis.opsForValue().set(blackListKey(token), "", timeToLive)
     }
-
 }

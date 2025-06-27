@@ -12,7 +12,7 @@ import jakarta.persistence.Table
 /**
  * Entity representing a comment within a discussion.
  *
- * @property subject The textual content or subject of the comment. Maximum length is 4000 characters.
+ * @property content The textual content or content of the comment. Maximum length is 4000 characters.
  * @property fileName The name of the file attached to the comment, if any.
  * @property fileUrl The URL pointing to the file attached to the comment. Maximum length is 500 characters.
  * @property fileSize The size of the attached file in bytes.
@@ -21,43 +21,31 @@ import jakarta.persistence.Table
  */
 @Entity
 @Table(name = "comments")
-data class CommentEntity(
-    /**
-     * The textual content or subject of the comment.
-     */
-    @Column(name = "subject", length = 4000)
-    val subject: String,
-    /**
-     * The name of the file attached to this comment.
-     */
+class CommentEntity : BaseEntity() {
+    @Column(name = "content", length = 4000)
+    var content: String = ""
+
     @Column(name = "file_name")
-    val fileName: String? = null,
-    /**
-     * The URL of the file attached to this comment.
-     */
+    var fileName: String? = null
+
     @Column(name = "file_url", length = 500)
-    val fileUrl: String? = null,
-    /**
-     * The size of the attached file in bytes.
-     */
+    var fileUrl: String? = null
+
     @Column(name = "file_size")
-    val fileSize: Long? = null,
-    /**
-     * The discussion to which this comment belongs.
-     */
+    var fileSize: Long? = null
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "discussion_id", nullable = false)
-    val discussion: DiscussionEntity,
+    lateinit var discussion: DiscussionEntity
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
-    val creator: UserEntity,
-    /**
-     * The type of the comment.
-     */
+    lateinit var creator: UserEntity
+
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    val commentType: CommentType = CommentType.COMMENT,
-) : BaseEntity()
+    var commentType: CommentType = CommentType.COMMENT
+}
 
 enum class CommentType {
     COMMENT,

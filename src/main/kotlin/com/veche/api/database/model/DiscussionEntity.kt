@@ -1,6 +1,16 @@
 package com.veche.api.database.model
 
-import jakarta.persistence.*
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.FetchType
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
+import jakarta.persistence.Table
+
 
 /**
  * Represents a discussion entity within the system.
@@ -17,59 +27,68 @@ import jakarta.persistence.*
  */
 @Entity
 @Table(name = "discussions")
-data class DiscussionEntity(
+class DiscussionEntity : BaseEntity() {
     /**
      * The subject or title of the discussion.
      */
     @Column(name = "subject", nullable = false, length = 200)
-    val subject: String,
+    var subject: String = ""
+
     @Column(name = "content", nullable = false, length = 4000)
-    val content: String,
+    var content: String = ""
+
     /**
      * Optional URL pointing to an associated file.
      */
     @Column(name = "file_url", length = 500)
-    val fileUrl: String? = null,
+    var fileUrl: String? = null
+
     /**
      * Optional name of the associated file.
      */
     @Column(name = "file_name")
-    val fileName: String? = null,
+    var fileName: String? = null
+
     /**
      * Optional size of the associated file in bytes.
      */
     @Column(name = "file_size")
-    val fileSize: Long? = null,
+    var fileSize: Long? = null
+
     /**
      * The party associated with this discussion.
      */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "party_id", nullable = false)
-    val party: PartyEntity,
+    lateinit var party: PartyEntity
+
     /**
      * The user who created the discussion.
      */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "creator_id", nullable = false)
-    val creator: UserEntity,
+    lateinit var creator: UserEntity
+
     /**
      * Set of comments related to this discussion.
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "discussion", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val comments: MutableSet<CommentEntity> = mutableSetOf(),
+    var comments: MutableSet<CommentEntity> = mutableSetOf()
+
     /**
      * The current status of the discussion.
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    val status: DiscussionStatus = DiscussionStatus.WAITING,
+    var status: DiscussionStatus = DiscussionStatus.WAITING
+
     /**
      * Optional session associated with the discussion.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "session_id", nullable = true)
-    val session: SessionEntity? = null,
-) : BaseEntity()
+    var session: SessionEntity? = null
+}
 
 /**
  * Enumeration of possible statuses for a discussion.

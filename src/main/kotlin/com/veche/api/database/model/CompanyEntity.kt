@@ -11,11 +11,13 @@ import jakarta.persistence.*
  */
 @Entity
 @Table(name = "companies")
-data class CompanyEntity(
+class CompanyEntity : BaseEntity() {
     @Column(name = "name", nullable = false)
-    val name: String,
+    var name: String = ""
+
     @OneToMany(mappedBy = "company", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    val users: MutableSet<UserEntity> = mutableSetOf(),
+    var users: MutableSet<UserEntity> = mutableSetOf()
+
     @OneToMany(mappedBy = "company", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    val parties: MutableSet<PartyEntity> = mutableSetOf(),
-) : BaseEntity()
+    var parties: MutableSet<PartyEntity> = mutableSetOf()
+}
