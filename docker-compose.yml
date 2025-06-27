@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: vechedb
+      POSTGRES_USER: veche
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    networks:
+      - backend
+    restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    networks:
+      - backend
+    restart: unless-stopped
+
+  api:
+    image: curiousdanil/veche_api:0.0.5
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/vechedb
+      SPRING_DATASOURCE_USERNAME: veche
+      SPRING_REDIS_HOST: redis
+    secrets:
+      - jwt_secret
+      - postgres_password
+    networks:
+      - backend
+    ports:
+      - "8080:8080"
+
+secrets:
+  jwt_secret:
+    external: true
+  postgres_password:
+    external: true
+
+networks:
+  backend:
+    driver: overlay
