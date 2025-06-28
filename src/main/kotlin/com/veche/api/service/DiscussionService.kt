@@ -11,6 +11,7 @@ import com.veche.api.mapper.DiscussionMapper
 import com.veche.api.security.UserPrincipal
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 import java.util.*
 
 @Service
@@ -205,6 +206,8 @@ class DiscussionService(
             throw ForbiddenException("Only the creator can delete the discussion.")
         }
 
-        discussionRepository.delete(discussion)
+        discussion.apply {
+            deletedAt = Instant.now()
+        }
     }
 }

@@ -3,9 +3,11 @@ package com.veche.api.service
 import com.veche.api.database.model.PartyEntity
 import com.veche.api.database.repository.CompanyRepository
 import com.veche.api.database.repository.PartyRepository
+import com.veche.api.database.repository.UserRepository
 import com.veche.api.dto.party.PartyRequestDto
 import com.veche.api.dto.party.PartyResponseDto
 import com.veche.api.dto.party.PartyUpdateDto
+import com.veche.api.exception.ConflictException
 import com.veche.api.exception.NotFoundException
 import com.veche.api.mapper.PartyMapper
 import com.veche.api.security.UserPrincipal
@@ -31,6 +33,7 @@ class PartyService(
     private val companyRepository: CompanyRepository,
     private val partyRepository: PartyRepository,
     private val partyMapper: PartyMapper,
+    private val userRepository: UserRepository,
 ) {
     /**
      * Creates a new party within a specified company.
@@ -46,22 +49,16 @@ class PartyService(
     fun createParty(
         request: PartyRequestDto,
         user: UserPrincipal,
-    ): PartyResponseDto {
-        val company =
-            companyRepository
-                .findById(user.companyId)
-                .orElseThrow { NotFoundException("Company not found") }
-
-        val party =
+    ): PartyResponseDto =
+        partyMapper.toDto(
             partyRepository.save(
                 PartyEntity().apply {
                     name = request.name
-                    this.company = company
+                    this.company = companyRepository.getReferenceById(user.companyId)
+                    users = mutableSetOf(userRepository.getReferenceById(user.id))
                 },
-            )
-
-        return partyMapper.toDto(party)
-    }
+            ),
+        )
 
     /**
      * Updates an existing party's information.
@@ -136,16 +133,34 @@ class PartyService(
     @Transactional
     fun deleteParty(partyId: UUID) = findPartyById(partyId).also { it.deletedAt = Instant.now() }
 
-    /**
-     * Retrieves a party entity by its unique identifier.
-     *
-     * This is a private utility method used internally by other service methods
-     * to fetch party entities with consistent error handling.
-     *
-     * @param partyId The unique identifier of the party to retrieve
-     * @return PartyEntity representing the found party
-     * @throws NotFoundException if the specified party does not exist
-     */
+    @Transactional
+    fun addUserToParty(
+        partyId: UUID,
+        userId: UUID,
+    ) {
+        val party = findPartyById(partyId)
+        val user = userRepository.getReferenceById(userId)
+        if (party.users.any { it.id == user.id }) {
+            throw ConflictException("User is already a member of this party")
+        }
+
+        party.users.add(user)
+    }
+
+    @Transactional
+    fun evictUserFromParty(
+        partyId: UUID,
+        userId: UUID,
+    ) {
+        val party = findPartyById(partyId)
+        val user = userRepository.getReferenceById(userId)
+        if (party.users.none { it.id == user.id }) {
+            throw ConflictException("User is not a member of this party")
+        }
+
+        party.users.remove(user)
+    }
+
     private fun findPartyById(partyId: UUID) =
         partyRepository
             .findById(partyId)

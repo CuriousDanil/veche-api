@@ -9,17 +9,9 @@ import org.springframework.stereotype.Component
  */
 @Component
 class PartyMapper {
-
-    /**
-     * Converts a PartyEntity to PartyResponseDto.
-     *
-     * @param entity The party entity to be converted
-     * @return A data transfer object representing the party
-     */
-    fun toDto(entity: PartyEntity): PartyResponseDto {
-        return PartyResponseDto(
+    fun toDto(entity: PartyEntity): PartyResponseDto =
+        PartyResponseDto(
             id = entity.id,
-            name = entity.name
+            name = entity.name,
         )
-    }
 }

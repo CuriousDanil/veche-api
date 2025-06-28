@@ -1,5 +1,3 @@
-@file:Suppress("ktlint:standard:no-wildcard-imports")
-
 package com.veche.api.controller
 
 import com.veche.api.database.model.VoteValue

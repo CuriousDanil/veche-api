@@ -2,6 +2,7 @@ package com.veche.api.service
 
 import com.veche.api.database.model.CompanyEntity
 import com.veche.api.database.repository.CompanyRepository
+import com.veche.api.database.repository.UserRepository
 import com.veche.api.dto.company.CompanyRequestDto
 import com.veche.api.dto.company.CompanyResponseDto
 import com.veche.api.dto.company.CompanyUpdateDto
@@ -15,6 +16,7 @@ import java.util.*
 class CompanyService(
     private val companyRepository: CompanyRepository,
     private val companyMapper: CompanyMapper,
+    private val userRepository: UserRepository,
 ) {
     /**
      * Creates a new company with the given details.
@@ -102,5 +104,25 @@ class CompanyService(
         val matchedCompanies = companyRepository.findByNameContainingIgnoreCase(searchTerm)
 
         return matchedCompanies.map { companyMapper.toDto(it) }
+    }
+
+    @Transactional
+    fun addUser(
+        userId: UUID,
+        companyId: UUID,
+    ) {
+        val company = companyRepository.getReferenceById(companyId)
+        val user = userRepository.getReferenceById(userId)
+        company.users.add(user)
+    }
+
+    @Transactional
+    fun evictUser(
+        userId: UUID,
+        companyId: UUID,
+    ) {
+        val company = companyRepository.getReferenceById(companyId)
+        val user = userRepository.getReferenceById(userId)
+        company.users.remove(user)
     }
 }
