@@ -1,33 +1,33 @@
 package com.veche.api.mapper
 
 import com.veche.api.database.model.DiscussionEntity
+import com.veche.api.dto.discussion.DiscussionConciseResponseDto
 import com.veche.api.dto.discussion.DiscussionResponseDto
-import org.mapstruct.BeanMapping
-import org.mapstruct.InheritConfiguration
-import org.mapstruct.Mapper
-import org.mapstruct.Mapping
-import org.mapstruct.MappingConstants
-import org.mapstruct.MappingTarget
-import org.mapstruct.Mappings
-import org.mapstruct.NullValuePropertyMappingStrategy
-import org.mapstruct.ReportingPolicy
+import org.springframework.stereotype.Component
 
-@Mapper(
-    unmappedTargetPolicy = ReportingPolicy.IGNORE,
-    componentModel = MappingConstants.ComponentModel.SPRING
-)
-abstract class DiscussionMapper {
+@Component
+class DiscussionMapper(
+    private val voteMapper: DiscussionVoteMapper
+) {
+    fun toDto(entity: DiscussionEntity): DiscussionResponseDto =
+        DiscussionResponseDto(
+            id = entity.id,
+            subject = entity.subject,
+            content = entity.content,
+            fileUrl = entity.fileUrl,
+            fileName = entity.fileName,
+            fileSize = entity.fileSize,
+            createdAt = entity.createdAt,
+            partyId = entity.party.id,
+            creatorName = entity.creator.name,
+            status = entity.status,
+            votes = entity.votes.map { voteMapper.toDto(it) },
+        )
 
-    @Mappings(
-        Mapping(source = "party.id", target = "partyId"),
-        Mapping(source = "creator.name", target = "creatorName")
-    )
-    abstract fun toDto(discussionEntity: DiscussionEntity): DiscussionResponseDto
-
-    @InheritConfiguration(name = "toEntity")
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    abstract fun partialUpdate(
-        discussionResponseDto: DiscussionResponseDto,
-        @MappingTarget discussionEntity: DiscussionEntity
-    ): DiscussionEntity
+    fun toConciseDto(entity: DiscussionEntity): DiscussionConciseResponseDto =
+        DiscussionConciseResponseDto(
+            id = entity.id,
+            subject = entity.subject,
+            content = entity.content,
+        )
 }

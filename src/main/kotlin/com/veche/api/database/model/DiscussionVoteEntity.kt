@@ -12,10 +12,10 @@ import jakarta.persistence.*
 @Entity
 @Table(
     name = "discussion_votes",
-    indexes = [
-        Index(
-            name = "idx_discussion_votes_discussion_user_createdat",
-            columnList = "discussion_id, user_id, created_at DESC",
+    uniqueConstraints = [
+        UniqueConstraint(
+            name = "uc_discussion_user",
+            columnNames = ["discussion_id", "user_id"],
         ),
     ],
 )

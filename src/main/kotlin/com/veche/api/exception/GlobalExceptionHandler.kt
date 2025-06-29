@@ -23,6 +23,12 @@ class GlobalExceptionHandler {
         request: HttpServletRequest,
     ): ResponseEntity<ErrorResponse> = buildResponse(ex.message ?: "Invalid input", HttpStatus.BAD_REQUEST, request)
 
+    @ExceptionHandler(ForbiddenException::class)
+    fun handleForbidden(
+        ex: ForbiddenException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ErrorResponse> = buildResponse(ex.message ?: "Invalid input", HttpStatus.BAD_REQUEST, request)
+
     @ExceptionHandler(BadCredentialsException::class)
     fun handleBadCredentials(
         ex: BadCredentialsException,

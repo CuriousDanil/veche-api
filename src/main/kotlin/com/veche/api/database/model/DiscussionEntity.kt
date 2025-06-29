@@ -75,6 +75,9 @@ class DiscussionEntity : BaseEntity() {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "discussion", cascade = [CascadeType.ALL], orphanRemoval = true)
     var comments: MutableSet<CommentEntity> = mutableSetOf()
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "discussion", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var votes: MutableSet<DiscussionVoteEntity> = mutableSetOf()
+
     /**
      * The current status of the discussion.
      */
@@ -97,5 +100,6 @@ enum class DiscussionStatus {
     WAITING,
     VOTING,
     FINAL_VOTING,
+    RESOLVED,
     ARCHIVED,
 }

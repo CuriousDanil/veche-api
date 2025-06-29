@@ -53,7 +53,7 @@ class AuthService(
                     email = dto.email
                     passwordHash = hashedPassword
                     name = dto.name
-                    company = company
+                    company = newCompany
                     parties = mutableSetOf(newParty)
                 },
             )

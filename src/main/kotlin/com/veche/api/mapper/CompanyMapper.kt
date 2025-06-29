@@ -9,17 +9,15 @@ import org.springframework.stereotype.Component
  */
 @Component
 class CompanyMapper {
-
     /**
      * Converts a CompanyEntity to CompanyResponseDto.
      *
      * @param entity The company entity to be converted
      * @return A data transfer object representing the company
      */
-    fun toDto(entity: CompanyEntity): CompanyResponseDto {
-        return CompanyResponseDto(
+    fun toDto(entity: CompanyEntity): CompanyResponseDto =
+        CompanyResponseDto(
             id = entity.id,
-            name = entity.name
+            name = entity.name,
         )
-    }
 }

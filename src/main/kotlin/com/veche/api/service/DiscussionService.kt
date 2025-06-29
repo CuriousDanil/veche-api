@@ -83,6 +83,10 @@ class DiscussionService(
             throw ForbiddenException("User is not a member of the discussion's party.")
         }
 
+        if (discussion.status != DiscussionStatus.VOTING || discussion.status != DiscussionStatus.FINAL_VOTING) {
+            throw ForbiddenException("Discussion in not in voting state.")
+        }
+
         val vote =
             DiscussionVoteEntity().apply {
                 this.discussion = discussion
@@ -90,7 +94,7 @@ class DiscussionService(
                 this.voteValue = voteValue
             }
 
-        discussionVoteRepository.save(vote)
+        discussionVoteRepository.upsertVote(vote)
     }
 
     @Transactional

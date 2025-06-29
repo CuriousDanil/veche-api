@@ -1,6 +1,7 @@
 package com.veche.api.dto.discussion
 
 import com.veche.api.database.model.DiscussionStatus
+import com.veche.api.dto.discussionVote.DiscussionVoteResponseDto
 import java.time.Instant
 import java.util.*
 
@@ -26,5 +27,6 @@ data class DiscussionResponseDto(
     val fileUrl: String? = null,
     val fileName: String? = null,
     val fileSize: Long? = null,
-    val status: DiscussionStatus = DiscussionStatus.WAITING
+    val status: DiscussionStatus = DiscussionStatus.WAITING,
+    val votes: List<DiscussionVoteResponseDto>,
 )
