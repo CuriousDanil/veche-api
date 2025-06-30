@@ -4,6 +4,7 @@ import com.veche.api.database.model.VoteValue
 import com.veche.api.dto.discussion.DiscussionRequestDto
 import com.veche.api.dto.discussion.DiscussionResponseDto
 import com.veche.api.dto.discussion.DiscussionUpdateDto
+import com.veche.api.event.ActionPayload
 import com.veche.api.security.UserPrincipal
 import com.veche.api.service.DiscussionService
 import org.springframework.http.ResponseEntity
@@ -61,6 +62,43 @@ class DiscussionController(
         @PathVariable id: UUID,
     ): ResponseEntity<Void> {
         discussionService.putDiscussionOnWait(user, id)
+        return ResponseEntity.noContent().build()
+    }
+
+    @PostMapping("/{id}/resolve")
+    fun resolveDiscussion(
+        @AuthenticationPrincipal user: UserPrincipal,
+        @PathVariable id: UUID,
+    ): ResponseEntity<Void> {
+        discussionService.resolveDiscussion(user, id)
+        return ResponseEntity.noContent().build()
+    }
+
+    @PostMapping("/{id}/voting")
+    fun putDiscussionOnVoting(
+        @AuthenticationPrincipal user: UserPrincipal,
+        @PathVariable id: UUID,
+    ): ResponseEntity<Void> {
+        discussionService.putDiscussionOnVoting(user, id)
+        return ResponseEntity.noContent().build()
+    }
+
+    @PostMapping("/{id}/final-voting")
+    fun putDiscussionOnFinalVoting(
+        @AuthenticationPrincipal user: UserPrincipal,
+        @PathVariable id: UUID,
+    ): ResponseEntity<Void> {
+        discussionService.putDiscussionOnFinalVoting(user, id)
+        return ResponseEntity.noContent().build()
+    }
+
+    @PostMapping("/{id}/action")
+    fun addActionToDiscussion(
+        @AuthenticationPrincipal user: UserPrincipal,
+        @PathVariable id: UUID,
+        @RequestBody action: ActionPayload,
+    ): ResponseEntity<Void> {
+        discussionService.addActionToDiscussion(user, id, action)
         return ResponseEntity.noContent().build()
     }
 }

@@ -55,6 +55,9 @@ class AuthService(
                     name = dto.name
                     company = newCompany
                     parties = mutableSetOf(newParty)
+                    isAbleToManageSessions = true
+                    isAbleToManageUsers = true
+                    isAbleToPostDiscussions = true
                 },
             )
 

@@ -5,10 +5,15 @@ import com.veche.api.database.repository.*
 import com.veche.api.dto.discussion.DiscussionRequestDto
 import com.veche.api.dto.discussion.DiscussionResponseDto
 import com.veche.api.dto.discussion.DiscussionUpdateDto
+import com.veche.api.event.ActionPayload
+import com.veche.api.event.DiscussionResolvedEvent
+import com.veche.api.event.PayloadMapper
 import com.veche.api.exception.ForbiddenException
 import com.veche.api.exception.NotFoundException
 import com.veche.api.mapper.DiscussionMapper
 import com.veche.api.security.UserPrincipal
+import org.slf4j.LoggerFactory
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -21,6 +26,9 @@ class DiscussionService(
     private val discussionVoteRepository: DiscussionVoteRepository,
     private val userRepository: UserRepository,
     private val discussionMapper: DiscussionMapper,
+    private val publisher: ApplicationEventPublisher,
+    private val actionRepository: PendingActionRepository,
+    private val payloadMapper: PayloadMapper,
 ) {
     @Transactional(readOnly = true)
     fun getAllDiscussionsForUserCompany(user: UserPrincipal): List<DiscussionResponseDto> {
@@ -83,8 +91,8 @@ class DiscussionService(
             throw ForbiddenException("User is not a member of the discussion's party.")
         }
 
-        if (discussion.status != DiscussionStatus.VOTING || discussion.status != DiscussionStatus.FINAL_VOTING) {
-            throw ForbiddenException("Discussion in not in voting state.")
+        if (discussion.status !in listOf(DiscussionStatus.VOTING, DiscussionStatus.FINAL_VOTING)) {
+            throw ForbiddenException("Discussion is not in voting state.")
         }
 
         val vote =
@@ -150,12 +158,125 @@ class DiscussionService(
             throw ForbiddenException("User is not authorized to manage sessions.")
         }
 
-        if (discussion.status != DiscussionStatus.WAITING) {
-            throw ForbiddenException("Only discussions in WAITING status can be archived.")
+        if (discussion.status != DiscussionStatus.WAITING || discussion.status != DiscussionStatus.RESOLVED) {
+            throw ForbiddenException("Only discussions in WAITING or RESOLVED status can be archived.")
         }
 
         discussion.apply {
             status = DiscussionStatus.ARCHIVED
+        }
+    }
+
+    @Transactional
+    fun putDiscussionOnVoting(
+        // TODO : Move management to sessions
+        user: UserPrincipal,
+        discussionId: UUID,
+    ) {
+        val discussion =
+            discussionRepository
+                .findById(discussionId)
+                .orElseThrow { NotFoundException("Discussion not found.") }
+
+        val userEntity =
+            userRepository
+                .findById(user.id)
+                .orElseThrow { NotFoundException("Authenticated user not found.") }
+
+        if (discussion.party.users.none { it.id == userEntity.id }) {
+            throw ForbiddenException("User does not belong to the discussion's party.")
+        }
+
+        if (!userEntity.isAbleToManageSessions) {
+            throw ForbiddenException("User is not authorized to manage sessions.")
+        }
+
+        if (discussion.status != DiscussionStatus.WAITING) {
+            throw ForbiddenException("Only discussions in WAITING status can be put on voting.")
+        }
+
+        discussion.apply {
+            status = DiscussionStatus.VOTING
+        }
+    }
+
+    @Transactional
+    fun putDiscussionOnFinalVoting(
+        // TODO : Move management to sessions
+        user: UserPrincipal,
+        discussionId: UUID,
+    ) {
+        val discussion =
+            discussionRepository
+                .findById(discussionId)
+                .orElseThrow { NotFoundException("Discussion not found.") }
+
+        val userEntity =
+            userRepository
+                .findById(user.id)
+                .orElseThrow { NotFoundException("Authenticated user not found.") }
+
+        if (discussion.party.users.none { it.id == userEntity.id }) {
+            throw ForbiddenException("User does not belong to the discussion's party.")
+        }
+
+        if (!userEntity.isAbleToManageSessions) {
+            throw ForbiddenException("User is not authorized to manage sessions.")
+        }
+
+        /*if (discussion.status != DiscussionStatus.VOTING) {
+            throw ForbiddenException("Only discussions in VOTING status can be put on final voting.")
+        }*/
+
+        discussion.apply {
+            status = DiscussionStatus.FINAL_VOTING
+        }
+    }
+
+    @Transactional
+    fun resolveDiscussion(
+        // TODO : Move management to sessions
+        user: UserPrincipal,
+        discussionId: UUID,
+    ) {
+        val log = LoggerFactory.getLogger(javaClass)
+        log.debug("Resolving discussion for user {}", user.id)
+
+        val discussion =
+            discussionRepository
+                .findById(discussionId)
+                .orElseThrow { NotFoundException("Discussion not found.") }
+
+        if (discussion.status != DiscussionStatus.FINAL_VOTING) {
+            throw ForbiddenException("Only discussions in FINAL_VOTING status can be resolved.")
+        }
+
+        val userEntity =
+            userRepository
+                .findById(user.id)
+                .orElseThrow { NotFoundException("Authenticated user not found.") }
+
+        if (discussion.party.users.none { it.id == userEntity.id }) {
+            throw ForbiddenException("User does not belong to the discussion's party.")
+        }
+
+        val approved =
+            discussion.votes
+                .groupBy { it.voteValue }
+                .maxByOrNull { it.value.size }
+                ?.key ?: VoteValue.DISAGREE
+
+        log.info("Discussion {} resolved with vote {}", discussionId, approved)
+
+        publisher.publishEvent(
+            DiscussionResolvedEvent(
+                discussionId = discussion.id,
+                approved = approved == VoteValue.AGREE,
+            ),
+        )
+
+        discussion.apply {
+            status = DiscussionStatus.RESOLVED
         }
     }
 
@@ -182,8 +303,8 @@ class DiscussionService(
             throw ForbiddenException("User is not authorized to manage sessions.")
         }
 
-        if (discussion.status != DiscussionStatus.ARCHIVED) {
-            throw ForbiddenException("Only discussions in ARCHIVED status can be put on waiting.")
+        if (discussion.status != DiscussionStatus.ARCHIVED || discussion.status != DiscussionStatus.RESOLVED) {
+            throw ForbiddenException("Only discussions in ARCHIVED or RESOLVED status can be put on waiting.")
         }
 
         discussion.apply {
@@ -213,5 +334,39 @@ class DiscussionService(
         discussion.apply {
             deletedAt = Instant.now()
         }
+    }
+
+    @Transactional
+    fun addActionToDiscussion(
+        user: UserPrincipal,
+        discussionId: UUID,
+        action: ActionPayload,
+    ) {
+        val discussion =
+            discussionRepository
+                .findById(discussionId)
+                .orElseThrow { NotFoundException("Discussion not found.") }
+
+        val userEntity =
+            userRepository
+                .findById(user.id)
+                .orElseThrow { NotFoundException("Authenticated user not found.") }
+
+        if (discussion.party.users.none { it.id == userEntity.id }) {
+            throw ForbiddenException("User does not belong to the discussion's party.")
+        }
+
+        if (discussion.status != DiscussionStatus.WAITING) {
+            throw ForbiddenException("Only discussions in WAITING status can have actions added.")
+        }
+
+        actionRepository.save(
+            PendingActionEntity().apply {
+                this.discussion = discussion
+                this.actionType = action.type
+                this.payload = payloadMapper.toJson(action)
+                this.executed = false
+            },
+        )
     }
 }

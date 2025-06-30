@@ -12,6 +12,7 @@ import com.veche.api.exception.NotFoundException
 import com.veche.api.mapper.PartyMapper
 import com.veche.api.security.UserPrincipal
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.util.UUID
@@ -76,10 +77,10 @@ class PartyService(
         request: PartyUpdateDto,
         partyId: UUID,
     ): PartyResponseDto {
-        val party = findPartyById(partyId)
-        party.apply {
-            name = request.name
-        }
+        val party =
+            partyRepository.findById(partyId).orElseThrow { NotFoundException("Party with id $partyId not found") }
+        party.name = request.name
+        partyRepository.save(party)
         return partyMapper.toDto(party)
     }
 

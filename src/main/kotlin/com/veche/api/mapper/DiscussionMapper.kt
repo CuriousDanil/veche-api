@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class DiscussionMapper(
-    private val voteMapper: DiscussionVoteMapper
+    private val voteMapper: DiscussionVoteMapper,
+    private val actionMapper: ActionMapper,
 ) {
     fun toDto(entity: DiscussionEntity): DiscussionResponseDto =
         DiscussionResponseDto(
@@ -22,6 +23,7 @@ class DiscussionMapper(
             creatorName = entity.creator.name,
             status = entity.status,
             votes = entity.votes.map { voteMapper.toDto(it) },
+            actions = entity.pendingActions.map { actionMapper.toDto(it) },
         )
 
     fun toConciseDto(entity: DiscussionEntity): DiscussionConciseResponseDto =

@@ -11,7 +11,6 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 
-
 /**
  * Represents a discussion entity within the system.
  *
@@ -91,6 +90,9 @@ class DiscussionEntity : BaseEntity() {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "session_id", nullable = true)
     var session: SessionEntity? = null
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "discussion", cascade = [CascadeType.ALL], orphanRemoval = true)
+    open var pendingActions: MutableSet<PendingActionEntity> = mutableSetOf()
 }
 
 /**
