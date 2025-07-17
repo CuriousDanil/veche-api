@@ -6,12 +6,10 @@ import org.springframework.stereotype.Component
 
 @Component
 class DiscussionVoteValueConverter : Converter<String, VoteValue> {
-
-    override fun convert(source: String): VoteValue {
-        return try {
+    override fun convert(source: String): VoteValue =
+        try {
             VoteValue.valueOf(source.uppercase())
         } catch (ex: IllegalArgumentException) {
             throw IllegalArgumentException("Invalid discussion vote value: $source")
         }
-    }
 }

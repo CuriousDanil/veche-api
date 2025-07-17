@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
 
   api:
-    image: curiousdanil/veche_api:0.0.5
+    image: curiousdanil/veche_api:0.0.6
     depends_on:
       - postgres
       - redis

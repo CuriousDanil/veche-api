@@ -10,9 +10,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 class SecurityConfig(
-    private val jwtAuthFilter: JwtAuthFilter
+    private val jwtAuthFilter: JwtAuthFilter,
 ) {
-
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
@@ -21,10 +20,11 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests {
                 it
-                    .requestMatchers("/api/auth/**").permitAll()
-                    .anyRequest().authenticated()
-            }
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+                    .requestMatchers("/api/auth/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated()
+            }.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
     }

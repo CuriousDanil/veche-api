@@ -79,8 +79,6 @@ tasks.withType<org.springframework.boot.gradle.tasks.run.BootRun> {
     dependsOn("update")
 }
 
-tasks.withType<Jar> {
-    archiveBaseName.set("veche-api")
-    archiveVersion.set("")
-    archiveClassifier.set("")
+tasks.bootJar {
+    archiveFileName.set("veche-api.jar")
 }

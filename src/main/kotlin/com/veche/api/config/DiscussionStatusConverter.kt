@@ -6,12 +6,10 @@ import org.springframework.stereotype.Component
 
 @Component
 class DiscussionStatusConverter : Converter<String, DiscussionStatus> {
-
-    override fun convert(source: String): DiscussionStatus {
-        return try {
+    override fun convert(source: String): DiscussionStatus =
+        try {
             DiscussionStatus.valueOf(source.uppercase())
         } catch (ex: IllegalArgumentException) {
             throw IllegalArgumentException("Invalid discussion status: $source")
         }
-    }
 }
