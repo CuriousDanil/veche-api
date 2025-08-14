@@ -9,4 +9,45 @@
     <include file="db/changelog/29-03-changelog.sql"/>
     <include file="db/changelog/14-01-changelog.sql"/>
     <include file="db/changelog/14-02-changelog.sql"/>
+    <include file="db/changelog/14-03-changelog.sql"/>
+    <include file="db/changelog/14-04-changelog.sql"/>
+    <changeSet id="2025-08-14-fn" author="curiousdanil" runOnChange="true" context="dev,prod">
+        <sqlFile path="functions/change_voting_session_status.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="false"/>
+        <rollback>
+            <sql>DROP FUNCTION IF EXISTS public.change_voting_session_status();</sql>
+        </rollback>
+    </changeSet>
+    <changeSet id="2025-08-14-cron" author="curiousdanil" context="dev,prod">
+        <sql>CREATE EXTENSION IF NOT EXISTS pg_cron;</sql>
+
+        <!-- Don't split; wrap in CDATA so XML doesn't eat characters -->
+        <sql splitStatements="false">
+            <![CDATA[
+            DO $cron$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'voting-session-status-update') THEN
+                    PERFORM cron.schedule(
+                        'voting-session-status-update',
+                        '* * * * *',
+                        'SELECT public.change_voting_session_status()'
+                    );
+                ELSE
+                    PERFORM cron.alter_job(
+                        (SELECT jobid FROM cron.job WHERE jobname='voting-session-status-update' ORDER BY jobid DESC LIMIT 1),
+                        '* * * * *',
+                        'SELECT public.change_voting_session_status()',
+                        NULL, NULL, TRUE
+                    );
+                END IF;
+            END;
+            $cron$;
+            ]]>
+        </sql>
+
+        <rollback>
+            <sql>SELECT cron.unschedule('voting-session-status-update');</sql>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

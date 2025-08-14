@@ -2,9 +2,10 @@ package com.veche.api.database.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
-import org.springframework.web.bind.support.SessionStatus
 import java.time.Instant
 
 @Entity
@@ -19,6 +20,7 @@ class VotingSessionEntity : BaseEntity() {
     @Column(name = "end_time")
     var endsAt: Instant? = null
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     var status: VotingSessionStatus = VotingSessionStatus.WAITING
 
