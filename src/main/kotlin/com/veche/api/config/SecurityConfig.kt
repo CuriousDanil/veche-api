@@ -7,11 +7,26 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 class SecurityConfig(
     private val jwtAuthFilter: JwtAuthFilter,
 ) {
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        val cfg = CorsConfiguration()
+        cfg.allowedOrigins = listOf("https://localhost:5173")
+        cfg.allowedMethods = listOf("GET", "POST", "OPTIONS")
+        cfg.allowedHeaders = listOf("Content-Type", "Authorization", "X-Requested-With")
+        cfg.allowCredentials = true
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", cfg)
+        return source
+    }
+
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http

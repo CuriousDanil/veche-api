@@ -89,7 +89,7 @@ class DiscussionEntity : BaseEntity() {
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "session_id", nullable = true)
-    var session: SessionEntity? = null
+    var session: VotingSessionEntity? = null
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "discussion", cascade = [CascadeType.ALL], orphanRemoval = true)
     open var pendingActions: MutableSet<PendingActionEntity> = mutableSetOf()
