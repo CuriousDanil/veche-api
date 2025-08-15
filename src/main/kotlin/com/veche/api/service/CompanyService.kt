@@ -8,6 +8,7 @@ import com.veche.api.dto.company.CompanyResponseDto
 import com.veche.api.dto.company.CompanyUpdateDto
 import com.veche.api.exception.NotFoundException
 import com.veche.api.mapper.CompanyMapper
+import com.veche.api.security.UserPrincipal
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
@@ -33,6 +34,15 @@ class CompanyService(
 
         val savedCompany = companyRepository.save(company)
         return companyMapper.toDto(savedCompany)
+    }
+
+    @Transactional(readOnly = true)
+    fun getCompanyForUser(user: UserPrincipal): CompanyResponseDto {
+        val company =
+            companyRepository
+                .findById(user.companyId)
+                .orElseThrow { NotFoundException("Company not found for the current user.") }
+        return companyMapper.toDto(company)
     }
 
     /**
