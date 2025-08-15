@@ -1,8 +1,8 @@
 package com.veche.api.controller
 
-import com.veche.api.dto.votingsession.VotingSessionRequestDto
-import com.veche.api.dto.votingsession.VotingSessionResponseDto
-import com.veche.api.dto.votingsession.VotingSessionUpdateDto
+import com.veche.api.dto.votingSession.VotingSessionRequestDto
+import com.veche.api.dto.votingSession.VotingSessionResponseDto
+import com.veche.api.dto.votingSession.VotingSessionUpdateDto
 import com.veche.api.security.UserPrincipal
 import com.veche.api.service.VotingSessionService
 import org.springframework.http.ResponseEntity

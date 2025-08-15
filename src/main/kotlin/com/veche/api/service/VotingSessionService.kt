@@ -1,21 +1,17 @@
 package com.veche.api.service
 
-import com.veche.api.database.model.DiscussionStatus
 import com.veche.api.database.model.VotingSessionEntity
-import com.veche.api.database.model.VotingSessionStatus
 import com.veche.api.database.repository.DiscussionRepository
 import com.veche.api.database.repository.PartyRepository
 import com.veche.api.database.repository.VotingSessionRepository
-import com.veche.api.dto.votingsession.VotingSessionRequestDto
-import com.veche.api.dto.votingsession.VotingSessionResponseDto
-import com.veche.api.dto.votingsession.VotingSessionUpdateDto
-import com.veche.api.exception.ForbiddenException
+import com.veche.api.dto.votingSession.VotingSessionRequestDto
+import com.veche.api.dto.votingSession.VotingSessionResponseDto
+import com.veche.api.dto.votingSession.VotingSessionUpdateDto
 import com.veche.api.exception.NotFoundException
 import com.veche.api.mapper.VotingSessionMapper
 import com.veche.api.security.UserPrincipal
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
 import java.util.UUID
 
 @Service
@@ -66,7 +62,13 @@ class VotingSessionService(
                 this.secondRoundStartsAt = request.secondRoundStartsAt
                 this.endsAt = request.endsAt
             }
-        return votingSessionMapper.toDto(votingSessionRepository.save(votingSession))
+        val savedSession = votingSessionRepository.save(votingSession)
+        discussions.forEach {
+            it.apply {
+                session = savedSession
+            }
+        }
+        return votingSessionMapper.toDto(savedSession)
     }
 
     @Transactional
@@ -91,12 +93,22 @@ class VotingSessionService(
         updateDto.firstRoundStart?.let { votingSession.firstRoundStartsAt = it }
         updateDto.secondRoundStart?.let { votingSession.secondRoundStartsAt = it }
         updateDto.endTime?.let { votingSession.endsAt = it }
-        updateDto.discussionIds?.let {
+        updateDto.discussionIds?.let { it ->
             val discussions = discussionRepository.findAllById(it).toList()
             if (discussions.size != it.size) {
                 throw NotFoundException("One or more discussions not found.")
             }
+            votingSession.discussions.forEach { discussion ->
+                discussion.apply {
+                    session = null
+                }
+            }
             votingSession.discussions = discussions.toMutableSet()
+            votingSession.discussions.forEach { discussion ->
+                discussion.apply {
+                    session = votingSession
+                }
+            }
         }
 
         return votingSessionMapper.toDto(votingSession)

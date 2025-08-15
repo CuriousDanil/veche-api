@@ -1,4 +1,4 @@
-package com.veche.api.dto.votingsession
+package com.veche.api.dto.votingSession
 
 import java.time.Instant
 import java.util.UUID

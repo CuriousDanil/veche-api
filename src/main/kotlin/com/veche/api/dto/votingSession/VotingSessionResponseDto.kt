@@ -1,4 +1,4 @@
-package com.veche.api.dto.votingsession
+package com.veche.api.dto.votingSession
 
 import com.veche.api.database.model.VotingSessionStatus
 import com.veche.api.dto.discussion.DiscussionResponseDto

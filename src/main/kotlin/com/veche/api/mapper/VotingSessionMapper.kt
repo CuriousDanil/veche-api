@@ -1,7 +1,7 @@
 package com.veche.api.mapper
 
 import com.veche.api.database.model.VotingSessionEntity
-import com.veche.api.dto.votingsession.VotingSessionResponseDto
+import com.veche.api.dto.votingSession.VotingSessionResponseDto
 import org.springframework.stereotype.Component
 
 @Component
