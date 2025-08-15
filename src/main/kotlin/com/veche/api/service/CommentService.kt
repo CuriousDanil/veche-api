@@ -47,6 +47,10 @@ class CommentService(
                 else -> throw ForbiddenException("Comments cannot be posted to discussions with status ${discussion.status}.")
             }
 
+        if (commentRepository.existsByDiscussionIdAndCreatorIdAndCommentType(discussionId, user.id, commentType)) {
+            throw ForbiddenException("You have already posted a ${commentType.name} comment on this discussion.")
+        }
+
         val comment =
             CommentEntity().apply {
                 this.content = request.content
