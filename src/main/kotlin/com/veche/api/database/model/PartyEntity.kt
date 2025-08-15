@@ -30,4 +30,7 @@ class PartyEntity : BaseEntity() {
 
     @OneToMany(mappedBy = "party", cascade = [CascadeType.ALL], orphanRemoval = true)
     var discussions: MutableSet<DiscussionEntity> = mutableSetOf()
+
+    @OneToMany(mappedBy = "party", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var votingSessions: MutableSet<VotingSessionEntity> = mutableSetOf()
 }

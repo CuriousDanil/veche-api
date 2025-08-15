@@ -11,6 +11,7 @@
     <include file="db/changelog/14-02-changelog.sql"/>
     <include file="db/changelog/14-03-changelog.sql"/>
     <include file="db/changelog/14-04-changelog.sql"/>
+    <include file="db/changelog/functions/15-01-changelog.sql"/>
     <changeSet id="2025-08-14-fn" author="curiousdanil" runOnChange="true" context="dev,prod">
         <sqlFile path="functions/change_voting_session_status.sql"
                  relativeToChangelogFile="true"

@@ -4,6 +4,9 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
+import jakarta.persistence.FetchType
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import java.time.Instant
@@ -11,6 +14,9 @@ import java.time.Instant
 @Entity
 @Table(name = "voting_sessions")
 class VotingSessionEntity : BaseEntity() {
+    @Column(name = "name", nullable = false)
+    var name: String = ""
+
     @Column(name = "first_round_start_time")
     var firstRoundStartsAt: Instant? = null
 
@@ -26,6 +32,10 @@ class VotingSessionEntity : BaseEntity() {
 
     @OneToMany(mappedBy = "session", orphanRemoval = true)
     var discussions: MutableSet<DiscussionEntity> = mutableSetOf()
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "party_id", nullable = false)
+    lateinit var party: PartyEntity
 }
 
 enum class VotingSessionStatus {

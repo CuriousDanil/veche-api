@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component
 class DiscussionMapper(
     private val voteMapper: DiscussionVoteMapper,
     private val actionMapper: ActionMapper,
+    private val partyMapper: PartyMapper,
 ) {
     fun toDto(entity: DiscussionEntity): DiscussionResponseDto =
         DiscussionResponseDto(
@@ -19,7 +20,7 @@ class DiscussionMapper(
             fileName = entity.fileName,
             fileSize = entity.fileSize,
             createdAt = entity.createdAt,
-            partyId = entity.party.id,
+            party = partyMapper.toDto(entity.party),
             creatorName = entity.creator.name,
             status = entity.status,
             votes = entity.votes.map { voteMapper.toDto(it) },
