@@ -1,6 +1,8 @@
 package com.veche.api.service
 
+import com.veche.api.database.model.DiscussionStatus
 import com.veche.api.database.model.VotingSessionEntity
+import com.veche.api.database.model.VotingSessionStatus
 import com.veche.api.database.repository.DiscussionRepository
 import com.veche.api.database.repository.PartyRepository
 import com.veche.api.database.repository.VotingSessionRepository
@@ -26,6 +28,42 @@ class VotingSessionService(
         val companyId = user.companyId
         val votingSessions = votingSessionRepository.findAllByPartyCompanyId(companyId)
         return votingSessions.map { votingSessionMapper.toDto(it) }
+    }
+
+    @Transactional
+    fun startVotingSession(sessionId: UUID) {
+        val session =
+            votingSessionRepository
+                .findById(sessionId)
+                .orElseThrow { NotFoundException("Session not found.") }
+        session.status = VotingSessionStatus.VOTING
+        session.discussions.forEach {
+            it.apply { status = DiscussionStatus.VOTING }
+        }
+    }
+
+    @Transactional
+    fun startVotingSessionSecondRound(sessionId: UUID) {
+        val session =
+            votingSessionRepository
+                .findById(sessionId)
+                .orElseThrow { NotFoundException("Session not found.") }
+        session.status = VotingSessionStatus.FINAL_VOTING
+        session.discussions.forEach {
+            it.apply { status = DiscussionStatus.FINAL_VOTING }
+        }
+    }
+
+    @Transactional
+    fun endVotingSession(sessionId: UUID) {
+        val session =
+            votingSessionRepository
+                .findById(sessionId)
+                .orElseThrow { NotFoundException("Session not found.") }
+        session.status = VotingSessionStatus.RESOLVED
+        session.discussions.forEach {
+            it.apply { status = DiscussionStatus.RESOLVED }
+        }
     }
 
     @Transactional(readOnly = true)
