@@ -7,13 +7,14 @@ import com.veche.api.dto.company.CompanyUpdateDto
 import com.veche.api.dto.party.PartyUpdateDto
 import com.veche.api.service.CompanyService
 import com.veche.api.service.PartyService
+import org.slf4j.LoggerFactory
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.event.TransactionPhase
 import org.springframework.transaction.event.TransactionalEventListener
 
-// TODO : @Retryable
 @Component
 class DiscussionDecisionListener(
     private val actionRepository: PendingActionRepository,
@@ -21,13 +22,27 @@ class DiscussionDecisionListener(
     private val partyService: PartyService,
     private val companyService: CompanyService,
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
+
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun onDiscussionResolved(event: DiscussionResolvedEvent) {
-        if (!event.approved) return
+        if (!event.approved) {
+            log.info("Discussion ${event.discussionId} was not approved. No actions will be executed.")
+            return
+        }
 
+        log.info("Discussion ${event.discussionId} was approved. Executing pending actions.")
         actionRepository
             .findAllByDiscussionIdAndExecutedFalse(event.discussionId)
-            .forEach { executeAndMark(it) }
+            .forEach { action ->
+                try {
+                    executeAndMark(action)
+                    log.info("Successfully executed action ${action.id} of type ${action.actionType}")
+                } catch (e: Exception) {
+                    log.error("Failed to execute action ${action.id} of type ${action.actionType}", e)
+                }
+            }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -71,5 +86,6 @@ class DiscussionDecisionListener(
         }
 
         entity.executed = true
+        actionRepository.save(entity)
     }
 }

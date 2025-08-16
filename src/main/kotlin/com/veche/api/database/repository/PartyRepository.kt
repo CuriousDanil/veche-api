@@ -6,6 +6,11 @@ import java.util.UUID
 
 interface PartyRepository : JpaRepository<PartyEntity, UUID> {
     fun findAllByCompanyIdAndDeletedAtIsNull(companyId: UUID): List<PartyEntity>
+
+    fun existsByIdAndUsersId(
+        partyId: UUID,
+        userId: UUID,
+    ): Boolean
 }
 
 
