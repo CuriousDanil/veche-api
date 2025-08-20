@@ -1,17 +1,13 @@
 package com.veche.api.event
 
-import com.veche.api.database.model.DiscussionStatus
-import com.veche.api.database.model.VotingSessionEntity
-import com.veche.api.database.model.VotingSessionStatus
-import com.veche.api.database.repository.VotingSessionRepository
 import com.veche.api.service.VotingSessionService
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
 import org.postgresql.PGConnection
 import org.slf4j.LoggerFactory
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
-import org.springframework.transaction.PlatformTransactionManager
-import org.springframework.transaction.support.TransactionTemplate
 import java.sql.SQLException
 import java.util.UUID
 import java.util.concurrent.ExecutorService
@@ -37,7 +33,7 @@ class VotingSessionStatusListener(
         private const val RETRY_DELAY_MS = 10000L
     }
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent::class)
     fun start() {
         executor.submit { listenLoop() }
     }
@@ -47,6 +43,7 @@ class VotingSessionStatusListener(
             try {
                 dataSource.connection.use { connection ->
                     log.info("Establishing listener connection to PostgreSQL.")
+                    connection.autoCommit = true
                     val pgConnection = connection.unwrap(PGConnection::class.java)
 
                     connection.createStatement().use { stmt ->
@@ -56,7 +53,10 @@ class VotingSessionStatusListener(
                     }
 
                     while (running && !connection.isClosed) {
-                        val notifications = pgConnection.getNotifications(10000)
+                        val notifications = pgConnection.getNotifications(1000)
+                        if (notifications == null || notifications.isEmpty()) {
+                            log.debug("Listener heartbeat: no notifications in last 1s")
+                        }
                         notifications?.forEach { notification ->
                             log.info(
                                 "Received notification on channel '{}' with payload: {}",
@@ -83,14 +83,12 @@ class VotingSessionStatusListener(
         payload: String,
     ) {
         try {
-            val sessionId = UUID.fromString(payload)
+            val sessionId = UUID.fromString(payload.trim())
             when (channel) {
                 START_CHANNEL -> votingSessionService.startVotingSession(sessionId)
-                SECOND_PHASE_CHANNEL -> votingSessionService.startVotingSession(sessionId)
+                SECOND_PHASE_CHANNEL -> votingSessionService.startVotingSessionSecondRound(sessionId)
                 END_CHANNEL -> votingSessionService.endVotingSession(sessionId)
-                else -> {
-                    log.warn("Unknown notification channel: $channel")
-                }
+                else -> log.warn("Unknown notification channel: $channel")
             }
         } catch (e: Exception) {
             log.error("Failed to process notification for session ID: $payload on channel $channel", e)

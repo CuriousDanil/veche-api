@@ -50,5 +50,5 @@ class CommentEntity : BaseEntity() {
 enum class CommentType {
     COMMENT,
     ARGUMENT,
-    REVIEW,
+    REVIEW
 }
