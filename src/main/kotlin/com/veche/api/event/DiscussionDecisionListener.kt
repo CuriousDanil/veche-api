@@ -83,6 +83,15 @@ class DiscussionDecisionListener(
                     )
                 partyService.addUserToParty(p.partyId, p.userId)
             }
+
+            ActionType.DELETE_PARTY -> {
+                val p =
+                    payloadMapper.fromJson(
+                        entity.payload,
+                        DeleteParty::class.java,
+                    )
+                partyService.deleteParty(p.partyId)
+            }
         }
 
         entity.executed = true

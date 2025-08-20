@@ -6,10 +6,12 @@ import com.veche.api.security.UserPrincipal
 import com.veche.api.service.PartyService
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @RestController
 @RequestMapping("/api/parties")
@@ -31,4 +33,10 @@ class PartyController(
         @AuthenticationPrincipal user: UserPrincipal,
         @RequestBody request: PartyRequestDto,
     ): PartyResponseDto = partyService.createParty(request, user)
+
+    @GetMapping("/{partyId}")
+    fun getParty(
+        @AuthenticationPrincipal user: UserPrincipal,
+        @PathVariable("partyId") partyId: UUID,
+    ): PartyResponseDto = partyService.getPartyById(partyId, user)
 }

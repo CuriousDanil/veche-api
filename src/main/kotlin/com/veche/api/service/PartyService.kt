@@ -8,6 +8,7 @@ import com.veche.api.database.repository.UserRepository
 import com.veche.api.dto.party.PartyRequestDto
 import com.veche.api.dto.party.PartyResponseDto
 import com.veche.api.dto.party.PartyUpdateDto
+import com.veche.api.exception.ForbiddenException
 import com.veche.api.exception.NotFoundException
 import com.veche.api.mapper.PartyMapper
 import com.veche.api.security.UserPrincipal
@@ -96,6 +97,26 @@ class PartyService(
      */
     @Transactional(readOnly = true)
     fun getAllPartiesForUserCompany(user: UserPrincipal): List<PartyResponseDto> = getAllPartiesForCompany(user.companyId)
+
+    @Transactional(readOnly = true)
+    fun getPartyById(
+        partyId: UUID,
+        user: UserPrincipal,
+    ): PartyResponseDto {
+        val userEntity =
+            userRepository
+                .findById(user.id)
+                .orElseThrow { NotFoundException("Authenticated user not found.") }
+        val partyEntity =
+            partyRepository
+                .findById(partyId)
+                .orElseThrow { NotFoundException("Party not found.") }
+        if (userEntity.company != partyEntity.company) {
+            throw { ForbiddenException("User does not belong to the party's company") } as Throwable
+        }
+
+        return partyMapper.toDto(partyEntity)
+    }
 
     /**
      * Retrieves all parties that the specified user has access to.

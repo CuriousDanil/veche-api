@@ -34,4 +34,5 @@ enum class ActionType {
     RENAME_COMPANY,
     EVICT_USER_FROM_PARTY,
     ADD_USER_TO_PARTY,
+    DELETE_PARTY
 }

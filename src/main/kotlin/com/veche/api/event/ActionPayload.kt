@@ -18,10 +18,16 @@ import java.util.UUID
     JsonSubTypes.Type(value = ChangeCompanyName::class, name = "RENAME_COMPANY"),
     JsonSubTypes.Type(value = EvictUserFromParty::class, name = "EVICT_USER_FROM_PARTY"),
     JsonSubTypes.Type(value = AddUserToParty::class, name = "ADD_USER_TO_PARTY"),
+    JsonSubTypes.Type(value = DeleteParty::class, name = "DELETE_PARTY"),
 )
 sealed interface ActionPayload {
     val type: ActionType
 }
+
+data class DeleteParty(
+    override val type: ActionType = ActionType.DELETE_PARTY,
+    val partyId: UUID,
+) : ActionPayload
 
 data class ChangePartyName(
     override val type: ActionType = ActionType.RENAME_PARTY,
