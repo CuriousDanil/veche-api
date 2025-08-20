@@ -1,5 +1,6 @@
 package com.veche.api.service
 
+import com.veche.api.database.model.CommentType
 import com.veche.api.database.model.DiscussionStatus
 import com.veche.api.database.model.VotingSessionEntity
 import com.veche.api.database.model.VotingSessionStatus
@@ -22,6 +23,7 @@ class VotingSessionService(
     private val discussionRepository: DiscussionRepository,
     private val partyRepository: PartyRepository,
     private val votingSessionMapper: VotingSessionMapper,
+    private val summaryService: SummaryService,
 ) {
     @Transactional(readOnly = true)
     fun getAllVotingSessions(user: UserPrincipal): List<VotingSessionResponseDto> {
@@ -49,8 +51,12 @@ class VotingSessionService(
                 .findById(sessionId)
                 .orElseThrow { NotFoundException("Session not found.") }
         session.status = VotingSessionStatus.FINAL_VOTING
-        session.discussions.forEach {
-            it.apply { status = DiscussionStatus.FINAL_VOTING }
+        session.discussions.forEach { discussionEntity ->
+            discussionEntity.apply { status = DiscussionStatus.FINAL_VOTING }
+            summaryService.summarizeComments(
+                discussionEntity,
+                discussionEntity.comments.sortedBy { it.commentType == CommentType.ARGUMENT }.map { it.content },
+            )
         }
     }
 

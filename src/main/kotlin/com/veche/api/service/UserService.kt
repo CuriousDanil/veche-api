@@ -17,11 +17,23 @@ class UserService(
     private val userMapper: UserMapper,
 ) {
     @Transactional(readOnly = true)
-    fun getUserById(id: UUID) =
+    fun getUserById(
+        user: UserPrincipal,
+        userId: UUID,
+    ): UserResponseDto =
         userRepository
-            .findById(id)
-            .map(userMapper::toDto)
-            .orElseThrow { NoSuchElementException("User not found") }
+            .findById(userId)
+            .takeIf {
+                userRepository
+                    .findById(user.id)
+                    .orElseThrow { NotFoundException("Authenticated user not found") }
+                    .company ==
+                    userRepository
+                        .findById(
+                            userId,
+                        ).orElseThrow { NotFoundException("User not found") }
+            }?.map(userMapper::toDto)
+            ?.orElseThrow { NoSuchElementException("User not found") } ?: throw NotFoundException("User not found")
 
     @Transactional
     fun getCurrentUser(user: UserPrincipal): UserResponseDto =

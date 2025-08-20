@@ -41,6 +41,8 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
+    implementation("com.anthropic:anthropic-java:2.5.1")
+
     implementation("org.liquibase:liquibase-core")
 
     implementation("com.vladmihalcea:hibernate-types-60:2.21.1")
