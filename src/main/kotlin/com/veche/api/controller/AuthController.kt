@@ -6,11 +6,16 @@ import com.veche.api.dto.auth.RefreshRequestDto
 import com.veche.api.dto.auth.RefreshResponseDto
 import com.veche.api.dto.auth.RegistrationResponseDto
 import com.veche.api.dto.auth.UserRegistrationDto
+import com.veche.api.dto.invitation.InvitationResponseDto
 import com.veche.api.service.AuthService
+import com.veche.api.service.InvitationService
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.CookieValue
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -21,16 +26,23 @@ import java.time.Duration
 @RequestMapping("/api/auth")
 class AuthController(
     private val authService: AuthService,
+    private val invitationService: InvitationService,
 ) {
     @PostMapping("/register/founder")
     fun registerFounder(
         @RequestBody request: FounderRegistrationDto,
     ): RegistrationResponseDto = authService.registerFounder(request)
 
-    @PostMapping("/register/user")
+    @PostMapping("/invitations/{token}/accept")
     fun registerUser(
+        @PathVariable token: String,
         @RequestBody request: UserRegistrationDto,
-    ): RegistrationResponseDto = authService.registerUser(request)
+    ): RegistrationResponseDto = authService.registerUserByInvite(token, request)
+
+    @GetMapping("/invitations/{token}")
+    fun getInvitation(
+        @PathVariable token: String,
+    ): InvitationResponseDto = invitationService.getInvitation(token)
 
     @PostMapping("/login")
     fun login(

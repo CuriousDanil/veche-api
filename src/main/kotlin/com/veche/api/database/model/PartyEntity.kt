@@ -20,6 +20,9 @@ class PartyEntity : BaseEntity() {
     @JoinColumn(name = "company_id", nullable = false)
     lateinit var company: CompanyEntity
 
+    @OneToMany(mappedBy = "party", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    var invitations: MutableSet<InvitationEntity> = mutableSetOf()
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "parties_users",

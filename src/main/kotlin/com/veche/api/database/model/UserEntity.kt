@@ -20,7 +20,7 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "users")
 class UserEntity : BaseEntity() {
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, length = 50)
     var name: String = ""
 
     @Column(name = "email", nullable = false)
@@ -29,7 +29,7 @@ class UserEntity : BaseEntity() {
     @Column(name = "password_hash", nullable = false)
     var passwordHash: String = ""
 
-    @Column(name = "bio")
+    @Column(name = "bio", length = 400)
     var bio: String? = null
 
     @Column(name = "is_able_to_post_discussions")

@@ -4,6 +4,7 @@ import com.veche.api.database.model.CompanyEntity
 import com.veche.api.database.model.PartyEntity
 import com.veche.api.database.model.UserEntity
 import com.veche.api.database.repository.CompanyRepository
+import com.veche.api.database.repository.InvitationRepository
 import com.veche.api.database.repository.PartyRepository
 import com.veche.api.database.repository.UserRepository
 import com.veche.api.dto.auth.FounderRegistrationDto
@@ -11,6 +12,8 @@ import com.veche.api.dto.auth.LoginRequestDto
 import com.veche.api.dto.auth.RefreshRequestDto
 import com.veche.api.dto.auth.RegistrationResponseDto
 import com.veche.api.dto.auth.UserRegistrationDto
+import com.veche.api.exception.ForbiddenException
+import com.veche.api.exception.NotFoundException
 import com.veche.api.security.JwtService
 import com.veche.api.security.PasswordService
 import com.veche.api.security.RefreshTokenService
@@ -18,6 +21,7 @@ import com.veche.api.security.RefreshTokenStatus
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 
 @Service
 class AuthService(
@@ -27,6 +31,7 @@ class AuthService(
     private val companyRepository: CompanyRepository,
     private val partyRepository: PartyRepository,
     private val refreshTokenService: RefreshTokenService,
+    private val invitationRepository: InvitationRepository,
 ) {
     data class TokenPair(
         val accessToken: String,
@@ -67,21 +72,30 @@ class AuthService(
     }
 
     @Transactional
-    fun registerUser(dto: UserRegistrationDto): RegistrationResponseDto {
+    fun registerUserByInvite(
+        token: String,
+        dto: UserRegistrationDto,
+    ): RegistrationResponseDto {
+        val invitation = invitationRepository.findByToken(token) ?: throw NotFoundException("Invitation is not found")
+        if (Instant.now().isAfter(invitation.expiresAt)) ForbiddenException("Expired token")
+        if (invitation.usedAt != null) ForbiddenException("Expired token")
+
         val hashedPassword = passwordEncoder.hash(dto.password)
-        val newCompany =
-            companyRepository.findById(dto.companyId).orElseThrow {
-                IllegalArgumentException("Company with ID ${dto.companyId} not found.")
-            }
-        val party = partyRepository.findAllByCompanyIdAndDeletedAtIsNull(newCompany.id).first()
+
+        val party =
+            partyRepository
+                .findById(dto.partyId)
+                .orElseThrow { NotFoundException("Party with id: ${dto.partyId} not found.") }
+
         val user =
             userRepository.save(
                 UserEntity().apply {
                     email = dto.email
                     passwordHash = hashedPassword
                     name = dto.name
-                    company = newCompany
+                    bio = dto.bio
                     parties = mutableSetOf(party)
+                    company = party.company
                 },
             )
         return RegistrationResponseDto(user.name)

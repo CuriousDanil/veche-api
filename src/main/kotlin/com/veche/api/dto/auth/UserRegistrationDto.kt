@@ -6,5 +6,6 @@ data class UserRegistrationDto(
     val email: String,
     val password: String,
     val name: String,
-    val companyId: UUID
+    val bio: String?,
+    val partyId: UUID
 )
