@@ -75,6 +75,9 @@ class DiscussionEntity : BaseEntity() {
     var comments: MutableSet<CommentEntity> = mutableSetOf()
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "discussion", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var summaries: MutableSet<SummaryEntity> = mutableSetOf()
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "discussion", cascade = [CascadeType.ALL], orphanRemoval = true)
     var votes: MutableSet<DiscussionVoteEntity> = mutableSetOf()
 
     /**

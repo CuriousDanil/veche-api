@@ -14,6 +14,6 @@ class SummaryEntity : BaseEntity() {
     @JoinColumn(name = "discussion_id", nullable = false)
     lateinit var discussion: DiscussionEntity
 
-    @Column(name = "content", length = 4000)
+    @Column(name = "content", length = 400000)
     var content: String = ""
 }
