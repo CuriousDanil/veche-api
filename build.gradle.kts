@@ -5,6 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "2.1.20"
     kotlin("kapt") version "2.1.20"
+    id("com.appland.appmap") version "1.2.0"
 }
 
 group = "com.veche"
@@ -54,7 +55,15 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.6.3")
     implementation("org.mapstruct:mapstruct-processor:1.6.3")
     kapt("org.mapstruct:mapstruct-processor:1.6.3")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation(platform("org.testcontainers:testcontainers-bom:1.20.3"))
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation("com.redis:testcontainers-redis:2.2.4")
 }
+tasks.test { useJUnitPlatform() }
 
 dependencyManagement {
     imports {
