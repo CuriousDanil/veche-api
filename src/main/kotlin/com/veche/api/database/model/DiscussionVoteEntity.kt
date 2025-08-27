@@ -3,11 +3,11 @@ package com.veche.api.database.model
 import jakarta.persistence.*
 
 /**
- * Represents a vote cast by a user on a discussion.
+ * TODO()
  *
- * @property discussion The discussion entity that this vote is associated with.
- * @property user The user entity who cast the vote.
- * @property voteValue The value of the vote, indicating agreement or disagreement.
+ * @property discussion TODO()
+ * @property user TODO()
+ * @property voteValue TODO()
  */
 @Entity
 @Table(
@@ -34,12 +34,11 @@ class DiscussionVoteEntity : BaseEntity() {
 }
 
 /**
- * Enum representing possible vote values.
- *
- * @property AGREE Indicates an agreement vote.
- * @property DISAGREE Indicates a disagreement vote.
+ * TODO()
  */
 enum class VoteValue {
+    /** TODO() */
     AGREE,
+    /** TODO() */
     DISAGREE,
 }

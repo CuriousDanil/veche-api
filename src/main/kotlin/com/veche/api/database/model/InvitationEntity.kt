@@ -12,6 +12,18 @@ import jakarta.persistence.Table
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * TODO()
+ *
+ * @property token TODO()
+ * @property party TODO()
+ * @property suggestedName TODO()
+ * @property suggestedBio TODO()
+ * @property suggestedEmail TODO()
+ * @property expiresAt TODO()
+ * @property creator TODO()
+ * @property usedAt TODO()
+ */
 @Entity
 @Table(
     name = "invitations",

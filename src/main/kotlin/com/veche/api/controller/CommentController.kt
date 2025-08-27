@@ -10,11 +10,24 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
+/**
+ * TODO()
+ *
+ * @property commentService TODO()
+ */
 @RestController
 @RequestMapping("/api")
 class CommentController(
     private val commentService: CommentService,
 ) {
+    /**
+     * TODO()
+     *
+     * @param user TODO()
+     * @param discussionId TODO()
+     * @param request TODO()
+     * @return TODO()
+     */
     @PostMapping("/discussions/{discussionId}/comments")
     fun createComment(
         @AuthenticationPrincipal user: UserPrincipal,
@@ -22,12 +35,27 @@ class CommentController(
         @RequestBody request: CommentRequestDto,
     ): CommentResponseDto = commentService.createComment(user, discussionId, request)
 
+    /**
+     * TODO()
+     *
+     * @param user TODO()
+     * @param discussionId TODO()
+     * @return TODO()
+     */
     @GetMapping("/discussions/{discussionId}/comments")
     fun getCommentsForDiscussion(
         @AuthenticationPrincipal user: UserPrincipal,
         @PathVariable discussionId: UUID,
     ): List<CommentResponseDto> = commentService.getCommentsForDiscussion(user, discussionId)
 
+    /**
+     * TODO()
+     *
+     * @param user TODO()
+     * @param commentId TODO()
+     * @param updateDto TODO()
+     * @return TODO()
+     */
     @PatchMapping("/comments/{commentId}")
     fun updateComment(
         @AuthenticationPrincipal user: UserPrincipal,

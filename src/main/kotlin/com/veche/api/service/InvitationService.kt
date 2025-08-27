@@ -14,6 +14,14 @@ import org.springframework.transaction.annotation.Transactional
 import java.security.SecureRandom
 import java.util.Base64
 
+/**
+ * TODO()
+ *
+ * @property invitationRepository TODO()
+ * @property userRepository TODO()
+ * @property partyRepository TODO()
+ * @property rng TODO()
+ */
 @Service
 class InvitationService(
     private val invitationRepository: InvitationRepository,
@@ -22,12 +30,25 @@ class InvitationService(
 ) {
     private val rng = SecureRandom()
 
+    /**
+     * TODO()
+     *
+     * @param bytes TODO()
+     * @return TODO()
+     */
     fun randomToken(bytes: Int = 48): String {
         val b = ByteArray(bytes)
         rng.nextBytes(b)
         return Base64.getUrlEncoder().withoutPadding().encodeToString(b)
     }
 
+    /**
+     * TODO()
+     *
+     * @param user TODO()
+     * @param dto TODO()
+     * @return TODO()
+     */
     @Transactional
     fun createInvitation(
         user: UserPrincipal,

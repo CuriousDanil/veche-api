@@ -6,15 +6,38 @@ import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * TODO()
+ *
+ * @property redis TODO()
+ * @property jwtService TODO()
+ */
 @Service
 class RefreshTokenService(
     private val redis: StringRedisTemplate,
     private val jwtService: JwtService,
 ) {
+    /**
+     * TODO()
+     *
+     * @param userId TODO()
+     * @return TODO()
+     */
     private fun userKey(userId: UUID) = "refresh:$userId"
 
+    /**
+     * TODO()
+     *
+     * @param token TODO()
+     * @return TODO()
+     */
     private fun blackListKey(token: String) = "bl:$token"
 
+    /**
+     * TODO()
+     *
+     * @param token TODO()
+     */
     fun save(token: String) {
         val userId = jwtService.extractUserId(token)
         val timeToLive =
@@ -28,6 +51,12 @@ class RefreshTokenService(
         redis.opsForValue().set(userKey(userId), token, timeToLive)
     }
 
+    /**
+     * TODO()
+     *
+     * @param token TODO()
+     * @return TODO()
+     */
     fun status(token: String): RefreshTokenStatus {
         if (!jwtService.validateRefreshToken(token)) {
             return RefreshTokenStatus.MALFORMED_OR_EXPIRED
@@ -46,6 +75,12 @@ class RefreshTokenService(
         }
     }
 
+    /**
+     * TODO()
+     *
+     * @param oldToken TODO()
+     * @param newToken TODO()
+     */
     fun rotate(
         oldToken: String,
         newToken: String,
@@ -63,12 +98,22 @@ class RefreshTokenService(
         redis.opsForValue().set(userKey(userId), newToken, timeToLive)
     }
 
+    /**
+     * TODO()
+     *
+     * @param token TODO()
+     */
     fun delete(token: String) {
         val userId = jwtService.extractUserId(token)
         redis.delete(userKey(userId))
         blacklist(token)
     }
 
+    /**
+     * TODO()
+     *
+     * @param token TODO()
+     */
     private fun blacklist(token: String) {
         val timeToLive =
             Duration.between(

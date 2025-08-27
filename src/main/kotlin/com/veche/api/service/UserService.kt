@@ -11,11 +11,24 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
+/**
+ * TODO()
+ *
+ * @property userRepository TODO()
+ * @property userMapper TODO()
+ */
 @Service
 class UserService(
     private val userRepository: UserRepository,
     private val userMapper: UserMapper,
 ) {
+    /**
+     * TODO()
+     *
+     * @param user TODO()
+     * @param userId TODO()
+     * @return TODO()
+     */
     @Transactional(readOnly = true)
     fun getUserById(
         user: UserPrincipal,
@@ -35,6 +48,12 @@ class UserService(
             }?.map(userMapper::toDto)
             ?.orElseThrow { NoSuchElementException("User not found") } ?: throw NotFoundException("User not found")
 
+    /**
+     * TODO()
+     *
+     * @param user TODO()
+     * @return TODO()
+     */
     @Transactional
     fun getCurrentUser(user: UserPrincipal): UserResponseDto =
         userRepository
@@ -42,6 +61,13 @@ class UserService(
             .map(userMapper::toDto)
             .orElseThrow { NotFoundException("Authenticated user not found.") }
 
+    /**
+     * TODO()
+     *
+     * @param dto TODO()
+     * @param user TODO()
+     * @return TODO()
+     */
     @Transactional(readOnly = true)
     fun searchUsersForUserCompany(
         dto: UserSearchRequestDto,
@@ -53,6 +79,13 @@ class UserService(
                 dto.query,
             ).map(userMapper::toDto)
 
+    /**
+     * TODO()
+     *
+     * @param dto TODO()
+     * @param user TODO()
+     * @return TODO()
+     */
     @Transactional
     fun updateUserCredentials(
         dto: UserUpdateCredentialsDto,

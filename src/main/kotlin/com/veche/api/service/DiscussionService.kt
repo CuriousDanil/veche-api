@@ -19,6 +19,18 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.util.*
 
+/**
+ * TODO()
+ *
+ * @property discussionRepository TODO()
+ * @property partyRepository TODO()
+ * @property discussionVoteRepository TODO()
+ * @property userRepository TODO()
+ * @property discussionMapper TODO()
+ * @property publisher TODO()
+ * @property actionRepository TODO()
+ * @property payloadMapper TODO()
+ */
 @Service
 class DiscussionService(
     private val discussionRepository: DiscussionRepository,
@@ -30,6 +42,12 @@ class DiscussionService(
     private val actionRepository: PendingActionRepository,
     private val payloadMapper: PayloadMapper,
 ) {
+    /**
+     * TODO()
+     *
+     * @param user TODO()
+     * @return TODO()
+     */
     @Transactional(readOnly = true)
     fun getAllDiscussionsForUserCompany(user: UserPrincipal): List<DiscussionResponseDto> {
         val companyId = user.companyId
@@ -38,6 +56,13 @@ class DiscussionService(
         return discussions.map { discussionMapper.toDto(it) }
     }
 
+    /**
+     * TODO()
+     *
+     * @param user TODO()
+     * @param request TODO()
+     * @return TODO()
+     */
     @Transactional
     fun createDiscussion(
         user: UserPrincipal,

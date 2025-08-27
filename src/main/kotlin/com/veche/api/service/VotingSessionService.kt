@@ -17,6 +17,15 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
+/**
+ * TODO()
+ *
+ * @property votingSessionRepository TODO()
+ * @property discussionRepository TODO()
+ * @property partyRepository TODO()
+ * @property votingSessionMapper TODO()
+ * @property summaryService TODO()
+ */
 @Service
 class VotingSessionService(
     private val votingSessionRepository: VotingSessionRepository,
@@ -25,6 +34,12 @@ class VotingSessionService(
     private val votingSessionMapper: VotingSessionMapper,
     private val summaryService: SummaryService,
 ) {
+    /**
+     * TODO()
+     *
+     * @param user TODO()
+     * @return TODO()
+     */
     @Transactional(readOnly = true)
     fun getAllVotingSessions(user: UserPrincipal): List<VotingSessionResponseDto> {
         val companyId = user.companyId
@@ -32,6 +47,11 @@ class VotingSessionService(
         return votingSessions.map { votingSessionMapper.toDto(it) }
     }
 
+    /**
+     * TODO()
+     *
+     * @param sessionId TODO()
+     */
     @Transactional
     fun startVotingSession(sessionId: UUID) {
         val session =

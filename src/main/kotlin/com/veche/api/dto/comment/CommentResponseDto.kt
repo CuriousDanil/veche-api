@@ -5,6 +5,15 @@ import com.veche.api.dto.user.UserResponseDto
 import java.time.Instant
 import java.util.UUID
 
+/**
+ * TODO()
+ *
+ * @property id TODO()
+ * @property content TODO()
+ * @property creator TODO()
+ * @property status TODO()
+ * @property createdAt TODO()
+ */
 data class CommentResponseDto(
     val id: UUID,
     val content: String,

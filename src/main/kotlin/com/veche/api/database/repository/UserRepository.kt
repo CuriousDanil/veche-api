@@ -7,7 +7,17 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.util.UUID
 
+/**
+ * TODO()
+ */
 interface UserRepository : JpaRepository<UserEntity, UUID> {
+    /**
+     * TODO()
+     *
+     * @param company TODO()
+     * @param q TODO()
+     * @return TODO()
+     */
     @Query(
         """
   select u
@@ -24,7 +34,19 @@ interface UserRepository : JpaRepository<UserEntity, UUID> {
         @Param("q") q: String,
     ): List<UserEntity>
 
+    /**
+     * TODO()
+     *
+     * @param email TODO()
+     * @return TODO()
+     */
     fun findByEmail(email: String): UserEntity?
 
+    /**
+     * TODO()
+     *
+     * @param email TODO()
+     * @return TODO()
+     */
     fun existsByEmail(email: String): Boolean
 }

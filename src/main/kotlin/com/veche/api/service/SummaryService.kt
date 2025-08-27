@@ -14,6 +14,14 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
+/**
+ * TODO()
+ *
+ * @property client TODO()
+ * @property summaryRepository TODO()
+ * @property summaryMapper TODO()
+ * @property logger TODO()
+ */
 @Service
 class SummaryService(
     private val client: AnthropicClient,
@@ -22,6 +30,13 @@ class SummaryService(
 ) {
     private val logger = LoggerFactory.getLogger(SummaryService::class.java) // <-- declare a logger
 
+    /**
+     * TODO()
+     *
+     * @param user TODO()
+     * @param discussionId TODO()
+     * @return TODO()
+     */
     @Transactional
     fun getSummaryForDiscussion(
         user: UserPrincipal,

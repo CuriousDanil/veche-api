@@ -11,6 +11,14 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.Type
 
+/**
+ * TODO()
+ *
+ * @property discussion TODO()
+ * @property actionType TODO()
+ * @property payload TODO()
+ * @property executed TODO()
+ */
 @Entity
 @Table(name = "pending_actions")
 class PendingActionEntity : BaseEntity() {
@@ -29,10 +37,18 @@ class PendingActionEntity : BaseEntity() {
     var executed: Boolean = false
 }
 
+/**
+ * TODO()
+ */
 enum class ActionType {
+    /** TODO() */
     RENAME_PARTY,
+    /** TODO() */
     RENAME_COMPANY,
+    /** TODO() */
     EVICT_USER_FROM_PARTY,
+    /** TODO() */
     ADD_USER_TO_PARTY,
+    /** TODO() */
     DELETE_PARTY
 }

@@ -3,11 +3,11 @@ package com.veche.api.database.model
 import jakarta.persistence.*
 
 /**
- * Entity representing a company.
+ * TODO()
  *
- * @property name the name of the company.
- * @property users the users belonging to the company; managed with cascade and orphanRemoval.
- * @property parties the parties associated with the company; managed with cascade and orphanRemoval.
+ * @property name TODO()
+ * @property users TODO()
+ * @property parties TODO()
  */
 @Entity
 @Table(name = "companies")

@@ -7,6 +7,12 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 
+/**
+ * TODO()
+ *
+ * @property discussion TODO()
+ * @property content TODO()
+ */
 @Entity
 @Table(name = "summary")
 class SummaryEntity : BaseEntity() {

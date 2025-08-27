@@ -1,9 +1,9 @@
 package com.veche.api.dto.company
 
 /**
- * Data Transfer Object for creating a new company.
+ * TODO()
  *
- * @property name The name of the company to be created.
+ * @property name TODO()
  */
 data class CompanyRequestDto(
     val name: String

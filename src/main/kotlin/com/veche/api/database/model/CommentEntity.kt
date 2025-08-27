@@ -10,14 +10,15 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 
 /**
- * Entity representing a comment within a discussion.
+ * TODO()
  *
- * @property content The textual content or content of the comment. Maximum length is 4000 characters.
- * @property fileName The name of the file attached to the comment, if any.
- * @property fileUrl The URL pointing to the file attached to the comment. Maximum length is 500 characters.
- * @property fileSize The size of the attached file in bytes.
- * @property discussion The discussion entity to which this comment belongs.
- * @property commentType The type of the comment.
+ * @property content TODO()
+ * @property fileName TODO()
+ * @property fileUrl TODO()
+ * @property fileSize TODO()
+ * @property discussion TODO()
+ * @property creator TODO()
+ * @property commentType TODO()
  */
 @Entity
 @Table(name = "comments")
@@ -47,8 +48,14 @@ class CommentEntity : BaseEntity() {
     var commentType: CommentType = CommentType.COMMENT
 }
 
+/**
+ * TODO()
+ */
 enum class CommentType {
+    /** TODO() */
     COMMENT,
+    /** TODO() */
     ARGUMENT,
+    /** TODO() */
     REVIEW
 }

@@ -23,6 +23,17 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 
+/**
+ * TODO()
+ *
+ * @property jwtService TODO()
+ * @property userRepository TODO()
+ * @property passwordEncoder TODO()
+ * @property companyRepository TODO()
+ * @property partyRepository TODO()
+ * @property refreshTokenService TODO()
+ * @property invitationRepository TODO()
+ */
 @Service
 class AuthService(
     private val jwtService: JwtService,
@@ -33,11 +44,23 @@ class AuthService(
     private val refreshTokenService: RefreshTokenService,
     private val invitationRepository: InvitationRepository,
 ) {
+    /**
+     * TODO()
+     *
+     * @property accessToken TODO()
+     * @property refreshToken TODO()
+     */
     data class TokenPair(
         val accessToken: String,
         val refreshToken: String,
     )
 
+    /**
+     * TODO()
+     *
+     * @param dto TODO()
+     * @return TODO()
+     */
     @Transactional
     fun registerFounder(dto: FounderRegistrationDto): RegistrationResponseDto {
         val hashedPassword = passwordEncoder.hash(dto.password)
@@ -71,6 +94,13 @@ class AuthService(
         return RegistrationResponseDto(newUser.name)
     }
 
+    /**
+     * TODO()
+     *
+     * @param token TODO()
+     * @param dto TODO()
+     * @return TODO()
+     */
     @Transactional
     fun registerUserByInvite(
         token: String,
@@ -101,6 +131,12 @@ class AuthService(
         return RegistrationResponseDto(user.name)
     }
 
+    /**
+     * TODO()
+     *
+     * @param dto TODO()
+     * @return TODO()
+     */
     @Transactional
     fun login(dto: LoginRequestDto): TokenPair {
         val user =
@@ -127,6 +163,12 @@ class AuthService(
         return TokenPair(accessToken, refreshToken)
     }
 
+    /**
+     * TODO()
+     *
+     * @param dto TODO()
+     * @return TODO()
+     */
     @Transactional
     fun refresh(dto: RefreshRequestDto): TokenPair {
         when (refreshTokenService.status(dto.refreshToken)) {

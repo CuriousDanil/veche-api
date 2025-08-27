@@ -7,7 +7,15 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.util.UUID
 
+/**
+ * TODO()
+ */
 interface DiscussionVoteRepository : JpaRepository<DiscussionVoteEntity, UUID> {
+    /**
+     * TODO()
+     *
+     * @param vote TODO()
+     */
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(
         value = """

@@ -19,16 +19,13 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * Service layer for managing party operations within the Veche application.
+ * TODO()
  *
- * This service provides comprehensive CRUD operations for parties, including creation,
- * updates, retrieval, and deletion. It handles party-company relationships and ensures
- * proper data access based on user permissions and company associations.
- *
- * @property companyRepository Repository for company data access operations
- * @property partyRepository Repository for party data access operations
- * @property partyMapper Mapper for converting between entity and DTO representations
- *
+ * @property companyRepository TODO()
+ * @property partyRepository TODO()
+ * @property partyMapper TODO()
+ * @property userRepository TODO()
+ * @property log TODO()
  */
 @Service
 class PartyService(
@@ -40,14 +37,11 @@ class PartyService(
     private val log = LoggerFactory.getLogger(javaClass)
 
     /**
-     * Creates a new party within a specified company.
+     * TODO()
      *
-     * This method validates that the specified company exists before creating the party.
-     * The operation is performed within a database transaction to ensure data consistency.
-     *
-     * @param request The party creation request containing party details and company ID
-     * @return PartyResponseDto containing the created party information
-     * @throws NotFoundException if the specified company does not exist
+     * @param request TODO()
+     * @param user TODO()
+     * @return TODO()
      */
     @Transactional
     fun createParty(
@@ -65,15 +59,11 @@ class PartyService(
         )
 
     /**
-     * Updates an existing party's information.
+     * TODO()
      *
-     * This method retrieves the existing party, updates its properties based on the request,
-     * and saves the changes to the database within a transaction.
-     *
-     * @param request The update request containing new party information
-     * @param partyId The unique identifier of the party to update
-     * @return PartyResponseDto containing the updated party information
-     * @throws NotFoundException if the specified party does not exist
+     * @param request TODO()
+     * @param partyId TODO()
+     * @return TODO()
      */
     @Transactional
     fun updateParty(
@@ -87,17 +77,21 @@ class PartyService(
     }
 
     /**
-     * Retrieves all parties belonging to the user's company.
+     * TODO()
      *
-     * This is a convenience method that delegates to [getAllPartiesForCompany] using
-     * the company ID from the user's principal. The operation is read-only.
-     *
-     * @param user The authenticated user principal containing company information
-     * @return List of PartyResponseDto representing all parties in the user's company
+     * @param user TODO()
+     * @return TODO()
      */
     @Transactional(readOnly = true)
     fun getAllPartiesForUserCompany(user: UserPrincipal): List<PartyResponseDto> = getAllPartiesForCompany(user.companyId)
 
+    /**
+     * TODO()
+     *
+     * @param partyId TODO()
+     * @param user TODO()
+     * @return TODO()
+     */
     @Transactional(readOnly = true)
     fun getPartyById(
         partyId: UUID,
@@ -119,43 +113,38 @@ class PartyService(
     }
 
     /**
-     * Retrieves all parties that the specified user has access to.
+     * TODO()
      *
-     * This method returns only the parties that are explicitly associated with the user
-     * through their party IDs list. The operation is read-only.
-     *
-     * @param user The authenticated user principal containing accessible party IDs
-     * @return List of PartyResponseDto representing parties accessible to the user
+     * @param user TODO()
+     * @return TODO()
      */
     @Transactional(readOnly = true)
     fun getPartiesForUser(user: UserPrincipal): List<PartyResponseDto> = partyRepository.findAllById(user.partyIds).map(partyMapper::toDto)
 
     /**
-     * Retrieves all parties belonging to a specific company.
+     * TODO()
      *
-     * This method fetches all parties associated with the given company ID.
-     * The operation is read-only and returns an empty list if no parties are found.
-     *
-     * @param companyId The unique identifier of the company
-     * @return List of PartyResponseDto representing all parties in the specified company
+     * @param companyId TODO()
+     * @return TODO()
      */
     @Transactional(readOnly = true)
     fun getAllPartiesForCompany(companyId: UUID): List<PartyResponseDto> =
         partyRepository.findAllByCompanyIdAndDeletedAtIsNull(companyId).map(partyMapper::toDto)
 
     /**
-     * Deletes a party from the system.
+     * TODO()
      *
-     * This method first verifies that the party exists before attempting deletion.
-     * The operation is performed within a database transaction to ensure data consistency.
-     * Related data and associations should be handled by database cascading rules.
-     *
-     * @param partyId The unique identifier of the party to delete
-     * @throws NotFoundException if the specified party does not exist
+     * @param partyId TODO()
      */
     @Transactional
     fun deleteParty(partyId: UUID) = findPartyById(partyId).also { it.deletedAt = Instant.now() }
 
+    /**
+     * TODO()
+     *
+     * @param partyId TODO()
+     * @param userId TODO()
+     */
     @Transactional
     fun addUserToParty(
         partyId: UUID,
@@ -175,6 +164,12 @@ class PartyService(
         user.parties.add(party)
     }
 
+    /**
+     * TODO()
+     *
+     * @param user TODO()
+     * @param party TODO()
+     */
     private fun ensureCompanyMembership(
         user: UserEntity,
         party: PartyEntity,
@@ -185,6 +180,12 @@ class PartyService(
         }
     }
 
+    /**
+     * TODO()
+     *
+     * @param partyId TODO()
+     * @param userId TODO()
+     */
     @Transactional
     fun evictUserFromParty(
         partyId: UUID,
@@ -202,6 +203,12 @@ class PartyService(
         user.parties.remove(party)
     }
 
+    /**
+     * TODO()
+     *
+     * @param partyId TODO()
+     * @return TODO()
+     */
     private fun findPartyById(partyId: UUID) =
         partyRepository
             .findById(partyId)

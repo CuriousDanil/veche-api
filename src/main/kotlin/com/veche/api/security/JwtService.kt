@@ -11,6 +11,14 @@ import java.util.Base64
 import java.util.Date
 import java.util.UUID
 
+/**
+ * TODO()
+ *
+ * @property secret TODO()
+ * @property key TODO()
+ * @property accessTokenValidityMs TODO()
+ * @property refreshTokenValidityMs TODO()
+ */
 @Service
 class JwtService(
     @Value("\${jwt.secret}") private val secret: String,

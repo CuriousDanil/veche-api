@@ -22,28 +22,59 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.Duration
 
+/**
+ * TODO()
+ *
+ * @property authService TODO()
+ * @property invitationService TODO()
+ */
 @RestController
 @RequestMapping("/api/auth")
 class AuthController(
     private val authService: AuthService,
     private val invitationService: InvitationService,
 ) {
+    /**
+     * TODO()
+     *
+     * @param request TODO()
+     * @return TODO()
+     */
     @PostMapping("/register/founder")
     fun registerFounder(
         @RequestBody request: FounderRegistrationDto,
     ): RegistrationResponseDto = authService.registerFounder(request)
 
+    /**
+     * TODO()
+     *
+     * @param token TODO()
+     * @param request TODO()
+     * @return TODO()
+     */
     @PostMapping("/invitations/{token}/accept")
     fun registerUser(
         @PathVariable token: String,
         @RequestBody request: UserRegistrationDto,
     ): RegistrationResponseDto = authService.registerUserByInvite(token, request)
 
+    /**
+     * TODO()
+     *
+     * @param token TODO()
+     * @return TODO()
+     */
     @GetMapping("/invitations/{token}")
     fun getInvitation(
         @PathVariable token: String,
     ): InvitationResponseDto = invitationService.getInvitation(token)
 
+    /**
+     * TODO()
+     *
+     * @param request TODO()
+     * @return TODO()
+     */
     @PostMapping("/login")
     fun login(
         @RequestBody request: LoginRequestDto,
@@ -64,6 +95,12 @@ class AuthController(
             .body(RefreshResponseDto(accessToken))
     }
 
+    /**
+     * TODO()
+     *
+     * @param rt TODO()
+     * @return TODO()
+     */
     @PostMapping("/refresh")
     fun refresh(
         @CookieValue(name = "rt", required = false) rt: String?,

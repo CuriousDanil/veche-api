@@ -17,6 +17,14 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
+/**
+ * TODO()
+ *
+ * @property commentRepository TODO()
+ * @property discussionRepository TODO()
+ * @property userRepository TODO()
+ * @property commentMapper TODO()
+ */
 @Service
 class CommentService(
     private val commentRepository: CommentRepository,
@@ -24,6 +32,14 @@ class CommentService(
     private val userRepository: UserRepository,
     private val commentMapper: CommentMapper,
 ) {
+    /**
+     * TODO()
+     *
+     * @param user TODO()
+     * @param discussionId TODO()
+     * @param request TODO()
+     * @return TODO()
+     */
     @Transactional
     fun createComment(
         user: UserPrincipal,

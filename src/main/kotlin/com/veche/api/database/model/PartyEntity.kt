@@ -3,12 +3,14 @@ package com.veche.api.database.model
 import jakarta.persistence.*
 
 /**
- * Represents a party within a company, encapsulating its name, associated company, users, and discussions.
+ * TODO()
  *
- * @property name The name of the party.
- * @property company The company to which the party belongs.
- * @property users The set of users associated with the party.
- * @property discussions The discussions linked to the party; cascades all operations and removes orphans.
+ * @property name TODO()
+ * @property company TODO()
+ * @property invitations TODO()
+ * @property users TODO()
+ * @property discussions TODO()
+ * @property votingSessions TODO()
  */
 @Entity
 @Table(name = "parties")

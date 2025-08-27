@@ -11,11 +11,24 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
+/**
+ * TODO()
+ *
+ * @property jwtService TODO()
+ * @property userRepository TODO()
+ */
 @Component
 class JwtAuthFilter(
     private val jwtService: JwtService,
     private val userRepository: UserRepository,
 ) : OncePerRequestFilter() {
+    /**
+     * TODO()
+     *
+     * @param request TODO()
+     * @param response TODO()
+     * @param filterChain TODO()
+     */
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,

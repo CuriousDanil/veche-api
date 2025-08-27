@@ -11,10 +11,20 @@ import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
+/**
+ * TODO()
+ *
+ * @property jwtAuthFilter TODO()
+ */
 @Configuration
 class SecurityConfig(
     private val jwtAuthFilter: JwtAuthFilter,
 ) {
+    /**
+     * TODO()
+     *
+     * @return TODO()
+     */
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val cfg = CorsConfiguration()
@@ -27,6 +37,12 @@ class SecurityConfig(
         return source
     }
 
+    /**
+     * TODO()
+     *
+     * @param http TODO()
+     * @return TODO()
+     */
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http

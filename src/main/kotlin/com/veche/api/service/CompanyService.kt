@@ -13,6 +13,13 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
+/**
+ * TODO()
+ *
+ * @property companyRepository TODO()
+ * @property companyMapper TODO()
+ * @property userRepository TODO()
+ */
 @Service
 class CompanyService(
     private val companyRepository: CompanyRepository,
@@ -20,10 +27,10 @@ class CompanyService(
     private val userRepository: UserRepository,
 ) {
     /**
-     * Creates a new company with the given details.
+     * TODO()
      *
-     * @param request DTO containing the company information
-     * @return DTO with the created company details
+     * @param request TODO()
+     * @return TODO()
      */
     @Transactional
     fun createCompany(request: CompanyRequestDto): CompanyResponseDto {
@@ -36,6 +43,12 @@ class CompanyService(
         return companyMapper.toDto(savedCompany)
     }
 
+    /**
+     * TODO()
+     *
+     * @param user TODO()
+     * @return TODO()
+     */
     @Transactional(readOnly = true)
     fun getCompanyForUser(user: UserPrincipal): CompanyResponseDto {
         val company =
@@ -46,12 +59,11 @@ class CompanyService(
     }
 
     /**
-     * Updates an existing company's name.
+     * TODO()
      *
-     * @param id The unique identifier of the company to update
-     * @param request DTO containing the updated company information
-     * @return DTO with the updated company details
-     * @throws NotFoundException if the company with the given ID is not found
+     * @param id TODO()
+     * @param request TODO()
+     * @return TODO()
      */
     @Transactional
     fun updateCompanyName(
@@ -68,9 +80,9 @@ class CompanyService(
     }
 
     /**
-     * Retrieves all companies in the system.
+     * TODO()
      *
-     * @return List of DTOs with company details
+     * @return TODO()
      */
     @Transactional(readOnly = true)
     fun getAllCompanies(): List<CompanyResponseDto> {
@@ -79,11 +91,10 @@ class CompanyService(
     }
 
     /**
-     * Retrieves a specific company by its ID.
+     * TODO()
      *
-     * @param id The unique identifier of the company to retrieve
-     * @return DTO with the company details
-     * @throws NotFoundException if the company with the given ID is not found
+     * @param id TODO()
+     * @return TODO()
      */
     @Transactional(readOnly = true)
     fun getCompanyById(id: UUID): CompanyResponseDto {
@@ -96,14 +107,10 @@ class CompanyService(
     }
 
     /**
-     * Searches for companies by name with flexible matching capabilities directly at the database level.
-     * The search supports:
-     * - Partial name matches (case-insensitive)
-     * - Acronym matching (e.g., "ABC" would match "American Business Corporation")
-     * - Special character handling (ignores non-alphanumeric characters)
+     * TODO()
      *
-     * @param searchTerm The search term to look for in company names
-     * @return List of company DTOs matching the search criteria
+     * @param searchTerm TODO()
+     * @return TODO()
      */
     @Transactional(readOnly = true)
     fun searchCompanies(searchTerm: String): List<CompanyResponseDto> {
@@ -116,6 +123,12 @@ class CompanyService(
         return matchedCompanies.map { companyMapper.toDto(it) }
     }
 
+    /**
+     * TODO()
+     *
+     * @param userId TODO()
+     * @param companyId TODO()
+     */
     @Transactional
     fun addUser(
         userId: UUID,
@@ -126,6 +139,12 @@ class CompanyService(
         company.users.add(user)
     }
 
+    /**
+     * TODO()
+     *
+     * @param userId TODO()
+     * @param companyId TODO()
+     */
     @Transactional
     fun evictUser(
         userId: UUID,

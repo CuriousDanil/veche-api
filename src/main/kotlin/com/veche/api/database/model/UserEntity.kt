@@ -3,19 +3,19 @@ package com.veche.api.database.model
 import jakarta.persistence.*
 
 /**
- * Represents a user account within the system.
+ * TODO()
  *
- * @property name The user's display name.
- * @property email The user's unique email address.
- * @property passwordHash The securely stored hash of the user's password.
- * @property bio Optional user biography or profile description.
- * @property isAbleToPostDiscussions Indicates if the user is permitted to post new discussions.
- * @property isAbleToManageSessions Indicates if the user can manage sessions within the application.
- * @property isAbleToManageUsers Indicates if the user has permission to manage other user accounts.
- * @property company The company to which this user belongs.
- * @property parties The set of parties the user is a member of.
- * @property discussionEntities The discussions created by this user. Cascade operations and orphan removal are enabled.
- * @property comments The comments created by this user. Cascade operations and orphan removal are enabled.
+ * @property name TODO()
+ * @property email TODO()
+ * @property passwordHash TODO()
+ * @property bio TODO()
+ * @property isAbleToPostDiscussions TODO()
+ * @property isAbleToManageSessions TODO()
+ * @property isAbleToManageUsers TODO()
+ * @property company TODO()
+ * @property parties TODO()
+ * @property discussionEntities TODO()
+ * @property comments TODO()
  */
 @Entity
 @Table(name = "users")
